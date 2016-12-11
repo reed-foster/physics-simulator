@@ -1,12 +1,47 @@
 package com.foster.physics;
 
-class Main
+import java.awt.Graphics;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+@SuppressWarnings("serial")
+class Main extends JPanel
 {
-	public static void main(String[] args)
+	Main main;
+	
+	Environment environment;
+	
+	@Override
+	public void paint(Graphics g)
 	{
-		Vector v1 = new Vector(-4, -3);
-		Vector v2 = new Vector(1, 1);
-		//Vector v3 = new Vector(0, 1);
-		System.out.println(v1.reflect(v2).getString());
+		super.paint(g);
+		environment.paintall(g);
+	}
+	
+	public void update()
+	{
+		
+	}
+	
+	public void loop()
+	{
+		main.update();
+		main.repaint();
+	}
+	
+	public static void main(String[] args) throws InterruptedException
+	{
+		JFrame frame = new JFrame("Physics Simulator");
+		Main main = new Main();
+		frame.add(main);
+		frame.setSize(800, 600);
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		while (true)
+		{
+			main.loop();
+			Thread.sleep(10);
+		}
 	}
 }
