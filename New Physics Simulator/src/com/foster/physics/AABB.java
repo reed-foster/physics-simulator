@@ -18,6 +18,11 @@ public class AABB
 		this.max = max;
 	}
 	
+	AABB get()
+	{
+		return new AABB(min, max);
+	}
+	
 	/**Determines if two AABBs are colliding
 	 * @param a = 1st AABB
 	 * @param b = 2nd AABB
