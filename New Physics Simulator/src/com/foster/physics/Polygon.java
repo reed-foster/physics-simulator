@@ -1,9 +1,14 @@
 package com.foster.physics;
 
-class Polygon extends Body
+/**Subclass of Body - creates shapes with multiple vertices
+ * @author reed
+ */
+public class Polygon extends Body
 {
 	Vector[] vertices;
 	AABB bounds;
+	
+	Type type;
 	
 	/**Default Polygon constructor
 	 * @param mass = mass of polygon
@@ -19,6 +24,7 @@ class Polygon extends Body
 		super(mass, pos, vel, acc, mu, e);
 		this.vertices = vertices;
 		bounds = getAABB(pos, vertices);
+		type = Type.polygon;
 	}
 	
 	/**Constructor for polygons with 0 velocity and 0 acceleration
@@ -33,6 +39,7 @@ class Polygon extends Body
 		super(mass, pos, mu, e);
 		this.vertices = vertices;
 		bounds = getAABB(pos, vertices);
+		type = Type.polygon;
 	}
 	
 	/**Constructor for polygons with 0 velocity, 0 acceleration, 0 friction, and e of 1
@@ -45,6 +52,7 @@ class Polygon extends Body
 		super(mass, pos);
 		this.vertices = vertices;
 		bounds = getAABB(pos, vertices);
+		type = Type.polygon;
 	}
 	
 	/**Gets the AABB of a Polygon based on its pos and vertices

@@ -3,7 +3,7 @@ package com.foster.physics;
 /**Body Class - superclass of all bodies
  * @author reed
  */
-class Body
+public class Body
 {
 	double mass;
 	Vector pos;
@@ -12,9 +12,10 @@ class Body
 	double mu;
 	double e;
 	double invmass;
-	Vector netforce;
+	private Vector netforce;
 	
-	//body types
+	enum Type {body, circle, polygon};
+	private Type type;
 	
 	/**Constructor for Rigid Bodies
 	 * @param mass = mass of body
@@ -33,6 +34,7 @@ class Body
 		this.mu = mu;
 		this.e = e;
 		this.invmass = this.mass == 0 ? 1/this.mass : 0.0;
+		type = Type.body;
 	}
 	
 	/**Constructor for Rigid Bodies with 0 velocity and 0 acceleration
@@ -50,6 +52,7 @@ class Body
 		this.mu = mu;
 		this.e = e;
 		this.invmass = this.mass == 0 ? 1/this.mass : 0.0;
+		type = Type.body;
 	}
 	
 	/**Constructor for Rigid Bodies with 0 velocity, 0 acceleration, 0 friction, and e of 1
@@ -64,7 +67,8 @@ class Body
 		this.acc = Vector.zeroVector;
 		this.mu = 0;
 		this.e = 1;
-		this.invmass = this.mass == 0 ? 1/this.mass : 0.0;;
+		this.invmass = this.mass == 0 ? 1/this.mass : 0.0;
+		type = Type.body;
 	}
 	
 	/**Increments the netforce vector by vector f
@@ -83,5 +87,10 @@ class Body
 		this.acc = Vector.mpy(this.netforce, this.invmass); //acc = Fnet/m
 		this.pos.increment(Vector.add(Vector.mpy(acc, 0.5*tstep*tstep),Vector.mpy(vel, tstep))); //pos += 0.5a*t^2+v*t
 		this.vel.increment(Vector.mpy(acc, tstep)); //vel += a*t
+	}
+	
+	Type getType()
+	{
+		return this.type;
 	}
 }

@@ -1,9 +1,14 @@
 package com.foster.physics;
 
-class Circle extends Body
+/**Subclass of Body - creates Circle objects
+ * @author reed
+ */
+public class Circle extends Body
 {
 	double radius;
 	AABB bounds;
+	
+	Type type;
 	
 	/**Default Circle constructor
 	 * @param mass = mass of circle
@@ -19,6 +24,7 @@ class Circle extends Body
 		super(mass, pos, vel, acc, mu, e);
 		this.radius = radius;
 		bounds = getAABB(pos, radius);
+		type = Type.circle;
 	}
 	
 	/**Constructor for circles with 0 velocity and 0 acceleration
@@ -33,6 +39,7 @@ class Circle extends Body
 		super(mass, pos, mu, e);
 		this.radius = radius;
 		bounds = getAABB(pos, radius);
+		type = Type.circle;
 	}
 	
 	/**Constructor for circles with 0 velocity, 0 acceleration, 0 friction, and e of 1
@@ -45,6 +52,7 @@ class Circle extends Body
 		super(mass, pos);
 		this.radius = radius;
 		bounds = getAABB(pos, radius);
+		type = Type.circle;
 	}
 	
 	/**Gets the AABB of a Circle based on its pos and radius
