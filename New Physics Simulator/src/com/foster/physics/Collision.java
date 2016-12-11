@@ -14,18 +14,27 @@ public class Collision
 	 */
 	static void collide(Circle a, Circle b)
 	{
+		/*System.out.println("A: min = " + a.bounds.min.getString() + ", max = " + a.bounds.max.getString() + " pos = " + a.pos.getString() + " radius = " + a.radius);
+		System.out.println("B: min = " + b.bounds.min.getString() + ", max = " + b.bounds.max.getString() + " pos = " + b.pos.getString() + " radius = " + b.radius);
+		System.out.println("");*/
 		//broad-phase: test if AABBs collide
-		if (!collide(a.bounds, b.bounds))
+		/*if (!collide(a.bounds, b.bounds))
 			return;
+		
+		System.out.println("AABBs colliding");*/
 		
 		//narrow-phase: test if circles collide
 		Vector cent_axis = Vector.sub(a.pos, b.pos);
 		double a_to_b_dist = cent_axis.magSq();
-		double r = a.radius + b.radius;
-		r *= r;
+		double r = (a.radius + b.radius) * (a.radius + b.radius);
+		//r *= r;
+		System.out.println("a = " + a.pos.getString() + ", b = " + b.pos.getString());
+		System.out.println("centerdist = " + a_to_b_dist);
+		System.out.println("r = " + r);
 		if (a_to_b_dist > r)
 			return;
 		
+		System.out.println("Circles colliding");
 		//circles collided, do collision response
 		
 		//get MTV (minimum translation vector)
@@ -37,15 +46,17 @@ public class Collision
 		  mtv = -||S_ab|| + r_a + r_b */
 		Vector mtv_norm = cent_axis.norm();
 		Vector mtv = mtv_norm.get();
-		double mtvlen = -Math.sqrt(a_to_b_dist) + a.radius + b.radius;
+		double mtvlen = -a_to_b_dist + a.radius + b.radius;
 		mtv.scale(mtvlen);
 		
 		//move objects so there is zero penetration
 		Vector v_arelb = Vector.sub(a.vel, b.vel);
 		double v_arelb_len = v_arelb.mag(); //distance to move after collision
-		double pre_collide_ratio = (Vector.invdotmag(v_arelb, mtv_norm, mtvlen) / v_arelb_len);
-		double post_collide_time = 1 - pre_collide_ratio;
-		a.pos.decrement(Vector.mpy(a.vel, pre_collide_ratio * Environment.tstep));
+		double pre_collide_time = (Vector.invdotmag(v_arelb, mtv_norm, mtvlen) / v_arelb_len);
+		double post_collide_time = 1 - pre_collide_time;
+		//Vector position = Vector.add(a.pos, Vector.mpy(a.vel, pre_collide_time * Environment.tstep * 25));
+		a.pos.increment(Vector.mpy(a.vel, pre_collide_time));
+		b.pos.increment(Vector.mpy(b.vel, pre_collide_time));
 		
 		//change objects velocity
 		//va = (mb(2ub - ua) + maua) / (ma + mb)
