@@ -1,6 +1,9 @@
 package com.foster.physics;
 
-class Collision
+/**Detects collisions
+ * @author reed
+ */
+public class Collision
 {
 	/**Collides two Circles
 	 * First detect then respond
@@ -45,6 +48,7 @@ class Collision
 		a.pos.decrement(Vector.mpy(a.vel, pre_collide_ratio * Environment.tstep));
 		
 		//change objects velocity
+		//va = (mb(2ub - ua) + maua) / (ma + mb)
 		//vb = (ma(2ua - ub) + mbub) / (ma + mb)
 		Vector va = Vector.mpy(Vector.add(Vector.mpy(Vector.sub(Vector.mpy(b.vel, 2), a.vel), b.mass), Vector.mpy(a.vel, a.mass)), 1 / (a.mass + b.mass));
 		Vector vb = Vector.mpy(Vector.add(Vector.mpy(Vector.sub(Vector.mpy(a.vel, 2), b.vel), a.mass), Vector.mpy(b.vel, b.mass)), 1 / (a.mass + b.mass));
