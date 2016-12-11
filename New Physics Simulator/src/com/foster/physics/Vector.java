@@ -1,6 +1,9 @@
 package com.foster.physics;
 
-class Vector
+/**2d Vector class
+ * @author reed
+ */
+public class Vector
 {
 	private double x, y;
 	static final Vector zeroVector = new Vector(0,0); //vector with 0 magnitude
