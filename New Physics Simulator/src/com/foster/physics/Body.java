@@ -12,10 +12,9 @@ public class Body
 	double mu;
 	double e;
 	double invmass;
-	private Vector netforce;
+	Vector netforce;
 	
 	enum Type {body, circle, polygon};
-	private Type type;
 	
 	/**Constructor for Rigid Bodies
 	 * @param mass = mass of body
@@ -33,8 +32,8 @@ public class Body
 		this.acc = acc;
 		this.mu = mu;
 		this.e = e;
-		this.invmass = this.mass == 0 ? 1/this.mass : 0.0;
-		type = Type.body;
+		this.invmass = this.mass != 0 ? 1/this.mass : 0.0;
+		this.netforce = new Vector(0, 0);
 	}
 	
 	/**Constructor for Rigid Bodies with 0 velocity and 0 acceleration
@@ -45,14 +44,7 @@ public class Body
 	 */
 	Body(double mass, Vector pos, double mu, double e)
 	{
-		this.mass = mass;
-		this.pos = pos;
-		this.vel = Vector.zeroVector;
-		this.acc = Vector.zeroVector;
-		this.mu = mu;
-		this.e = e;
-		this.invmass = this.mass == 0 ? 1/this.mass : 0.0;
-		type = Type.body;
+		this(mass, pos, Vector.zeroVector, Vector.zeroVector, mu, e);
 	}
 	
 	/**Constructor for Rigid Bodies with 0 velocity, 0 acceleration, 0 friction, and e of 1
@@ -61,14 +53,7 @@ public class Body
 	 */
 	Body(double mass, Vector pos)
 	{
-		this.mass = mass;
-		this.pos = pos;
-		this.vel = Vector.zeroVector;
-		this.acc = Vector.zeroVector;
-		this.mu = 0;
-		this.e = 1;
-		this.invmass = this.mass == 0 ? 1/this.mass : 0.0;
-		type = Type.body;
+		this(mass, pos, 0, 1);
 	}
 	
 	/**Increments the netforce vector by vector f
@@ -84,13 +69,16 @@ public class Body
 	 */
 	void update(double tstep)
 	{
-		this.acc = Vector.mpy(this.netforce, this.invmass); //acc = Fnet/m
-		this.pos.increment(Vector.add(Vector.mpy(acc, 0.5*tstep*tstep),Vector.mpy(vel, tstep))); //pos += 0.5a*t^2+v*t
-		this.vel.increment(Vector.mpy(acc, tstep)); //vel += a*t
+		Vector acceleration = Vector.mpy(this.netforce, this.invmass);
+		Vector velocity = Vector.add(Vector.mpy(this.acc, tstep), this.vel);
+		Vector position = Vector.add(Vector.add(Vector.mpy(this.acc, 0.5*tstep*tstep), Vector.mpy(this.vel, tstep)), this.pos);
+		this.acc = acceleration.get();
+		this.vel = velocity.get();
+		this.pos = position.get();
 	}
 	
 	Type getType()
 	{
-		return this.type;
+		return Type.body;
 	}
 }
