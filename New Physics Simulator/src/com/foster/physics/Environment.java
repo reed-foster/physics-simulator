@@ -11,15 +11,48 @@ import java.awt.RenderingHints;
  */
 public class Environment
 {
-	static final double tstep = 0.001;
+	static final double tstep = 0.005;
+	static final int dispwidth = 800;
+	static final int dispheight = 600;
 	List<Polygon> polygons = new ArrayList<Polygon>();
 	List<Circle> circles = new ArrayList<Circle>();
 	private int polysize, circlesize;
 	
 	Environment()
 	{
-		//polypointer = 0;
-		//circlepointer = 0;
+		polysize = 0;
+		circlesize = 0;
+	}
+	
+	void newEntity(Body a)
+	{
+		switch(a.getType())
+		{
+		case polygon:
+			polygons.add((Polygon) a);
+			polysize++;
+			break;
+		case circle:
+			circles.add((Circle) a);
+			circlesize++;
+			break;
+		case body:
+			System.err.println("Can't add body to entitylists");
+			break;
+		}
+	}
+	
+	void integrateAll()
+	{
+		for(Polygon i : polygons)
+		{
+			i.update(tstep);
+		}
+		for(Circle i : circles)
+		{
+			//System.out.println("Updating " + i.toString());
+			i.update(tstep);
+		}
 	}
 	
 	void collideAll()
@@ -53,28 +86,11 @@ public class Environment
 		}
 	}
 	
-	void newEntity(Body a)
-	{
-		switch(a.getType())
-		{
-		case polygon:
-			polygons.add((Polygon) a);
-			polysize++;
-			break;
-		case circle:
-			circles.add((Circle) a);
-			circlesize++;
-			break;
-		case body:
-			System.err.println("Can't add body to entitylists");
-			break;
-		}
-	}
-	
 	void paintall(Graphics g)
 	{
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		//test: g2d.drawRect(0, 0, 50, 50);
 		for(Polygon i : polygons)
 		{
 			Vector[] vertices = i.vertices;
@@ -84,13 +100,26 @@ public class Environment
 				int idx2 = (j + 1) % vertices.length;
 				Vector v1 = vertices[idx1];
 				Vector v2 = vertices[idx2];
-				g2d.drawLine((int) v1.getx(), (int) v1.gety(), (int) v2.getx(), (int) v2.gety());
+				drawLine(g2d, v1, v2);//g2d.drawLine((int) v1.getx(), (int) v1.gety(), (int) v2.getx(), (int) v2.gety());
 			}
 		}
 		for(Circle i : circles)
 		{
-			int diam = (int) (2 * i.radius);
-			g2d.drawOval((int) i.pos.getx(), (int) i.pos.gety(), diam, diam);
+			//int diam = (int) (2 * i.radius);
+			g2d.drawRect((int) (i.pos.getx() - i.radius), (int) (dispheight - i.pos.gety() - i.radius), (int) (2 * i.radius), (int) (2 * i.radius));
+			drawCircle(g2d, i.pos, i.radius); //g2d.drawOval((int) i.pos.getx(), (int) i.pos.gety(), diam, diam);
 		}
+	}
+	
+	void drawLine(Graphics2D g2d, Vector p1, Vector p2)
+	{
+		
+		g2d.drawLine((int) p1.getx(), (int) (dispheight - p1.gety()), (int) p2.getx(), (int) (dispheight - p2.gety()));
+	}
+	
+	void drawCircle(Graphics2D g2d, Vector p, double radius)
+	{
+		int diam = (int) (2 * radius);
+		g2d.drawOval((int) (p.getx() - radius), (int) (dispheight - p.gety() - radius), diam, diam);
 	}
 }
