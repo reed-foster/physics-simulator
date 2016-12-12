@@ -1,6 +1,9 @@
 package com.foster.physics;
 
-class Collision
+/**Detects collisions
+ * @author reed
+ */
+public class Collision
 {
 	/**Collides two Circles
 	 * First detect then respond
@@ -17,14 +20,12 @@ class Collision
 		
 		//narrow-phase: test if circles collide
 		Vector cent_axis = Vector.sub(a.pos, b.pos);
-		double a_to_b_dist = cent_axis.magSq();
-		double r = a.radius + b.radius;
-		r *= r;
-		if (a_to_b_dist > r)
+		double a_to_b_dist_sq = cent_axis.magSq();
+		double r_sq = (a.radius + b.radius) * (a.radius + b.radius);
+		if (a_to_b_dist_sq > r_sq)
 			return;
 		
 		//circles collided, do collision response
-		
 		//get MTV (minimum translation vector)
 		/*S_ab = vector between circle centers
 		  r_a = radius of circle a
@@ -34,17 +35,22 @@ class Collision
 		  mtv = -||S_ab|| + r_a + r_b */
 		Vector mtv_norm = cent_axis.norm();
 		Vector mtv = mtv_norm.get();
-		double mtvlen = -Math.sqrt(a_to_b_dist) + a.radius + b.radius;
+		double mtvlen = -Math.sqrt(a_to_b_dist_sq) + a.radius + b.radius;
 		mtv.scale(mtvlen);
 		
+		
 		//move objects so there is zero penetration
-		Vector v_arelb = Vector.sub(a.vel, b.vel);
-		double v_arelb_len = v_arelb.mag(); //distance to move after collision
-		double pre_collide_ratio = (Vector.invdotmag(v_arelb, mtv_norm, mtvlen) / v_arelb_len);
-		double post_collide_time = 1 - pre_collide_ratio;
-		a.pos.decrement(Vector.mpy(a.vel, pre_collide_ratio * Environment.tstep));
+		Vector v_ab = Vector.sub(a.vel, b.vel);
+		double v_ab_mag = v_ab.mag();
+		//get the time required to move objects
+		double t_req = Vector.invdotmag(v_ab, mtv_norm, mtvlen) / v_ab_mag;
+		//get the time left over post collision
+		double t_post = Environment.tstep - t_req;
+		a.pos.decrement(Vector.mpy(a.vel, t_req));
+		b.pos.decrement(Vector.mpy(b.vel, t_req));
 		
 		//change objects velocity
+		//va = (mb(2ub - ua) + maua) / (ma + mb)
 		//vb = (ma(2ua - ub) + mbub) / (ma + mb)
 		Vector va = Vector.mpy(Vector.add(Vector.mpy(Vector.sub(Vector.mpy(b.vel, 2), a.vel), b.mass), Vector.mpy(a.vel, a.mass)), 1 / (a.mass + b.mass));
 		Vector vb = Vector.mpy(Vector.add(Vector.mpy(Vector.sub(Vector.mpy(a.vel, 2), b.vel), a.mass), Vector.mpy(b.vel, b.mass)), 1 / (a.mass + b.mass));
@@ -52,8 +58,8 @@ class Collision
 		b.vel = vb;
 		
 		//update object position
-		a.pos.increment(Vector.mpy(a.vel, post_collide_time * Environment.tstep));
-		b.pos.increment(Vector.mpy(b.vel, post_collide_time * Environment.tstep));
+		a.pos.increment(Vector.mpy(a.vel, t_post));
+		b.pos.increment(Vector.mpy(b.vel, t_post));
 	}
 	
 	/**Collides a Circle with a Polygon
@@ -172,5 +178,22 @@ class Collision
 		if (a.max.gety() < b.min.gety() || a.min.gety() > b.min.gety())
 			return false;
 		return true;
+	}
+	
+	static void collidewalls(Circle a)
+	{
+		if (a.pos.getx() - a.radius < 0 || a.pos.getx() + a.radius > Environment.dispwidth)
+		{
+			a.vel = new Vector(-a.vel.getx(), a.vel.gety());
+		}
+		if (a.pos.gety() - a.radius < 0 || a.pos.gety() + a.radius > Environment.dispheight)
+		{
+			a.vel = new Vector(a.vel.getx(), -a.vel.gety());
+		}
+	}
+	
+	static void collidewalls(Polygon a)
+	{
+		
 	}
 }

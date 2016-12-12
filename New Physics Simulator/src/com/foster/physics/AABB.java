@@ -1,6 +1,9 @@
 package com.foster.physics;
 
-class AABB
+/**Axis Aligned Bounding Box Class - creates a box and detects collisions between boxes
+ * @author reed
+ */
+public class AABB
 {
 	Vector min;
 	Vector max;
@@ -13,6 +16,11 @@ class AABB
 	{
 		this.min = min;
 		this.max = max;
+	}
+	
+	AABB get()
+	{
+		return new AABB(min, max);
 	}
 	
 	/**Determines if two AABBs are colliding

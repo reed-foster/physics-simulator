@@ -1,6 +1,9 @@
 package com.foster.physics;
 
-class Polygon extends Body
+/**Subclass of Body - creates shapes with multiple vertices
+ * @author reed
+ */
+public class Polygon extends Body
 {
 	Vector[] vertices;
 	AABB bounds;
@@ -99,5 +102,10 @@ class Polygon extends Body
 				maxproj = currentproj;
 		}
 		return new Vector(minproj, maxproj);
+	}
+	
+	Type getType()
+	{
+		return Type.polygon;
 	}
 }

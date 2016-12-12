@@ -1,6 +1,9 @@
 package com.foster.physics;
 
-class Circle extends Body
+/**Subclass of Body - creates Circle objects
+ * @author reed
+ */
+public class Circle extends Body
 {
 	double radius;
 	AABB bounds;
@@ -52,10 +55,25 @@ class Circle extends Body
 	 * @param radius = radius of the circle
 	 * @return AABB (position vectors of minimum vertex and maximum vertex for the smallest AABB around the circle)
 	 */
-	private AABB getAABB(Vector pos, double radius)
+	private static AABB getAABB(Vector pos, double radius)
 	{
 		Vector vertex = new Vector(radius, radius);
 		return new AABB(Vector.sub(pos, vertex), Vector.add(pos, vertex)); //AABB = (pos-(rad,rad), pos+(rad,rad))
+	}
+	
+	/**Updates object position, velocity and acceleration
+	 * @param tstep = interval over which acceleration is applied (smaller values mean smoother, slower movement)
+	 */
+	void update(double tstep)
+	{
+		Vector acceleration = Vector.mpy(this.netforce, this.invmass);
+		Vector velocity = Vector.add(Vector.mpy(this.acc, tstep), this.vel);
+		Vector position = Vector.add(Vector.add(Vector.mpy(this.acc, 0.5*tstep*tstep), Vector.mpy(this.vel, tstep)), this.pos);
+		AABB aabb = getAABB(this.pos, this.radius);
+		this.acc = acceleration.get();
+		this.vel = velocity.get();
+		this.pos = position.get();
+		this.bounds = aabb.get();
 	}
 	
 	/**Gets the minimum and maximum values of the projection of a Circle onto a Vector axis
@@ -66,5 +84,10 @@ class Circle extends Body
 	{
 		double center = Vector.project(this.pos, axis);
 		return new Vector(center - this.radius, center + this.radius);
+	}
+	
+	Type getType()
+	{
+		return Type.circle;
 	}
 }

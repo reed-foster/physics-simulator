@@ -1,6 +1,9 @@
 package com.foster.physics;
 
-class Vector
+/**2d Vector class
+ * @author reed
+ */
+public class Vector
 {
 	private double x, y;
 	static final Vector zeroVector = new Vector(0,0); //vector with 0 magnitude
@@ -151,7 +154,7 @@ class Vector
 	static double invdotmag(Vector axis, Vector c, double projection)
 	{
 		double denom;
-		denom = axis.magSq() == 1 ? axis.getx() + axis.gety() : (axis.getx() + axis.gety())/axis.mag();
+		denom = axis.magSq() == 1 ? axis.getx() * c.getx() + axis.gety() * c.gety() : (axis.getx() * c.getx() + axis.gety() * c.gety())/axis.mag();
 		return (c.magSq()/denom);
 	}
 	
