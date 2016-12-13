@@ -11,7 +11,7 @@ import java.awt.RenderingHints;
  */
 public class Environment
 {
-	static final double tstep = 0.05;
+	static final double tstep = 0.02;
 	static final int dispwidth = 800;
 	static final int dispheight = 600;
 	List<Polygon> polygons = new ArrayList<Polygon>();
@@ -58,7 +58,7 @@ public class Environment
 	void collideAll()
 	{
 		//Resolve body-body collisions
-		for (int i = 0; i < polysize - 1; i++)
+		/*for (int i = 0; i < polysize - 1; i++)
 		{
 			Polygon a = polygons.get(i);
 			
@@ -73,24 +73,26 @@ public class Environment
 				Circle b = circles.get(j);
 				Collision.collide(a, b);
 			}
-		}
+		}*/
 		
-		for (int i = 0; i < circlesize- 1; i++)
+		for (int i = 0; i < circlesize - 1; i++)
 		{
+			//Collision.collidewalls(a);
 			Circle a = circles.get(i);
-			
-			for (int j = i + 1; j < circlesize; j++)
+			for (int j = 0; j < circlesize - 1; j++)
 			{
 				Circle b = circles.get(j);
 				Collision.collide(a, b);
+				//Collision.collidewalls(b);
 			}
 		}
 		
-		//Resolve body-wall collisions
+		/*//Resolve body-wall collisions
 		for (Polygon i : polygons)
 		{
 			Collision.collidewalls(i);
 		}
+		*/
 		for (Circle i : circles)
 		{
 			Collision.collidewalls(i);
