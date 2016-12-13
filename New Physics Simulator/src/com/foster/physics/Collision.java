@@ -14,6 +14,10 @@ public class Collision
 	 */
 	static void collide(Circle a, Circle b)
 	{
+		//can't collide an object with itself
+		if (a.equals(b))
+			return;
+		
 		//broad-phase: test if AABBs collide
 		if (!collide(a.bounds, b.bounds))
 			return;
