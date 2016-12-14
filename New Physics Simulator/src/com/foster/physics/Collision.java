@@ -18,9 +18,13 @@ public class Collision
 		if (a.equals(b))
 			return;
 		
+		//System.out.println("A and B are not the same circle");
+		
 		//broad-phase: test if AABBs collide
 		if (!collide(a.bounds, b.bounds))
 			return;
+		
+		//System.out.println("A and B's AABBs are colliding");
 		
 		//narrow-phase: test if circles collide
 		Vector cent_axis = Vector.sub(a.pos, b.pos);
@@ -28,6 +32,8 @@ public class Collision
 		double r_sq = (a.radius + b.radius) * (a.radius + b.radius);
 		if (a_to_b_dist_sq > r_sq)
 			return;
+		
+		//System.out.println("A and B are colliding");
 		
 		//circles collided, do collision response
 		//get MTV (minimum translation vector)
@@ -42,28 +48,39 @@ public class Collision
 		double mtvlen = -Math.sqrt(a_to_b_dist_sq) + a.radius + b.radius;
 		mtv.scale(mtvlen);
 		
-		
 		//move objects so there is zero penetration
-		Vector v_ab = Vector.sub(a.vel, b.vel);
+		a.pos.increment(mtv);
+		
+		/*Vector v_ab = Vector.sub(a.vel, b.vel);
 		double v_ab_mag = v_ab.mag();
 		//get the time required to move objects
 		double t_req = Vector.invdotmag(v_ab, mtv_norm, mtvlen) / v_ab_mag;
 		//get the time left over post collision
 		double t_post = Environment.tstep - t_req;
-		a.pos.decrement(Vector.mpy(a.vel, t_req));
-		b.pos.decrement(Vector.mpy(b.vel, t_req));
+		a.pos.decrement(Vector.mpy(a.vel, (t_req + 0.05 * Environment.tstep)));
+		b.pos.decrement(Vector.mpy(b.vel, (t_req + 0.05 * Environment.tstep)));*/
 		
 		//change objects velocity
+		//elastic collision
 		//va = (mb(2ub - ua) + maua) / (ma + mb)
 		//vb = (ma(2ua - ub) + mbub) / (ma + mb)
-		Vector va = Vector.mpy(Vector.add(Vector.mpy(Vector.sub(Vector.mpy(b.vel, 2), a.vel), b.mass), Vector.mpy(a.vel, a.mass)), 1 / (a.mass + b.mass));
-		Vector vb = Vector.mpy(Vector.add(Vector.mpy(Vector.sub(Vector.mpy(a.vel, 2), b.vel), a.mass), Vector.mpy(b.vel, b.mass)), 1 / (a.mass + b.mass));
-		a.vel = va;
-		b.vel = vb;
+		//Vector va = Vector.mpy(Vector.add(Vector.mpy(Vector.sub(Vector.mpy(b.vel, 2), a.vel), b.mass), Vector.mpy(a.vel, a.mass)), 1 / (a.mass + b.mass));
+		//Vector vb = Vector.mpy(Vector.add(Vector.mpy(Vector.sub(Vector.mpy(a.vel, 2), b.vel), a.mass), Vector.mpy(b.vel, b.mass)), 1 / (a.mass + b.mass));
+		//a.vel = va;
+		//b.vel = vb;
 		
+		//inelastic collision
+		double e_c = Math.min(a.e, b.e); //coefficient of restitution
+		//va = (e * mb (ub - ua) + ma * ua + mb * ub) / (ma + mb)
+		Vector maua = Vector.mpy(a.vel, a.mass);
+		Vector mbub = Vector.mpy(b.vel, b.mass);
+		Vector va = Vector.mpy(Vector.add(Vector.add(Vector.mpy(Vector.sub(b.vel, a.vel), e_c * b.mass), maua), mbub), 1 / (a.mass + b.mass));
+		Vector vb = Vector.mpy(Vector.add(Vector.add(Vector.mpy(Vector.sub(a.vel, b.vel), e_c * a.mass), maua), mbub), 1 / (a.mass + b.mass));
+		a.vel = va.get();
+		b.vel = vb.get();
 		//update object position
-		a.pos.increment(Vector.mpy(a.vel, t_post));
-		b.pos.increment(Vector.mpy(b.vel, t_post));
+		//a.pos.increment(Vector.mpy(a.vel, (t_post - 0 * Environment.tstep)));
+		//b.pos.increment(Vector.mpy(b.vel, (t_post - 0 * Environment.tstep)));
 	}
 	
 	/**Collides a Circle with a Polygon
