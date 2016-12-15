@@ -53,13 +53,13 @@ class Main extends JPanel
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		//List<Circle> circles = new ArrayList<Circle>();
-		for(int i = 0; i <= 500; i++)
+		for(int i = 0; i <= 100; i++)
 		{
 			double density = (Math.random() + 2) * 5;
 			Vector position = new Vector((Math.random() + 0.01) * (Environment.dispwidth - 20), (Math.random() + 0.01) * (Environment.dispheight - 20));
 			double radius = (Math.random() + 2) * 5;
 			double restitution = (Math.random() + 9) / 10;
-			Circle newcirc = new Circle(density * Math.PI * radius * radius * radius, position, 0, restitution, radius/2.5);
+			Circle newcirc = new Circle(density * Math.PI * radius * radius * radius, position, 0, restitution, radius/3.5);
 			environment.newEntity(newcirc);
 			Vector rand_vel = new Vector((Math.random() - 0.5) * 10000, (Math.random() - 0.5) * 10000);
 			newcirc.vel = rand_vel.get();
