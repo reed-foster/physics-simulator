@@ -66,7 +66,6 @@ public class Circle extends Body
 	 */
 	void update(double tstep)
 	{
-		//System.out.println("Integrating with respect to time for object " + this.toString());
 		Vector acceleration = Vector.mpy(this.netforce, this.invmass);
 		Vector velocity = Vector.add(Vector.mpy(this.acc, tstep), this.vel);
 		Vector position = Vector.add(Vector.add(Vector.mpy(this.acc, 0.5*tstep*tstep), Vector.mpy(this.vel, tstep)), this.pos);
@@ -75,11 +74,6 @@ public class Circle extends Body
 		this.vel = velocity.get();
 		this.pos = position.get();
 		this.bounds = aabb.get();
-		//this.acc = Vector.mpy(this.netforce, this.invmass); //acc = Fnet/m
-		//this.pos.increment(Vector.mpy(this.vel, tstep));//Vector.add(Vector.mpy(this.acc, 0.5*tstep*tstep), Vector.mpy(this.vel, tstep))); //pos += 0.5a*t^2+v*t
-		//this.vel.increment(Vector.mpy(this.acc, tstep)); //vel += a*t
-		//System.out.print("pos = " + this.pos.getString() + ", vel = " + this.vel.getString() + ", acc = " + this.acc.getString());
-		//System.out.println("");
 	}
 	
 	/**Gets the minimum and maximum values of the projection of a Circle onto a Vector axis

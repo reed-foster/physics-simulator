@@ -154,7 +154,7 @@ public class Vector
 	static double invdotmag(Vector axis, Vector c, double projection)
 	{
 		double denom;
-		denom = axis.magSq() == 1 ? axis.getx() + axis.gety() : (axis.getx() + axis.gety())/axis.mag();
+		denom = axis.magSq() == 1 ? axis.getx() * c.getx() + axis.gety() * c.gety() : (axis.getx() * c.getx() + axis.gety() * c.gety())/axis.mag();
 		return (c.magSq()/denom);
 	}
 	
