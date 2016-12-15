@@ -205,11 +205,11 @@ public class Collision
 	{
 		if (a.pos.getx() - a.radius < 0 || a.pos.getx() + a.radius > Environment.dispwidth)
 		{
-			a.vel = new Vector(-a.vel.getx(), a.vel.gety());
+			a.vel = new Vector(-a.e * a.vel.getx(), a.vel.gety());
 		}
 		if (a.pos.gety() - a.radius < 0 || a.pos.gety() + a.radius > Environment.dispheight)
 		{
-			a.vel = new Vector(a.vel.getx(), -a.vel.gety());
+			a.vel = new Vector(a.vel.getx(), -a.e * a.vel.gety());
 		}
 	}
 	
