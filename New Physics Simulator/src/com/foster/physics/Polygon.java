@@ -85,6 +85,22 @@ public class Polygon extends Body
 		return new AABB(Vector.add(pos, min_vertex), Vector.add(pos, max_vertex)); //AABB = (pos+min, pos+max)
 	}
 	
+	private Vector[] getvertices(Vector[] vertices, double theta) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	/**Updates object position, velocity and acceleration
+	 * @param tstep = interval over which acceleration is applied (smaller values mean smoother, slower movement)
+	 */
+	void integrate(double tstep)
+	{
+		super.integratelin(tstep);
+		this.vertices = getvertices(this.vertices, this.theta);
+		AABB aabb = getAABB(this.pos, this.vertices);
+		this.bounds = aabb.get();
+	}
+
 	/**Gets the minimum and maximum values of the projection of a Polygon onto a Vector axis
 	 * @param axis = axis to project Polygon onto
 	 * @return Vector (minimum, maximum)
