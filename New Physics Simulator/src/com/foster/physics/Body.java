@@ -5,14 +5,28 @@ package com.foster.physics;
  */
 public class Body
 {
-	double mass;
+	private static final double tau = Math.PI * 2;
+	//Linear Motion
 	Vector pos;
 	Vector vel;
 	Vector acc;
+	
+	//Angular Motion
+	double theta; //angular displacement
+	double omega; //angular velocity
+	double alpha; //angular acceleration
+	
 	double mu;
 	double e;
-	double invmass;
+	
+	double mass; //mass of body
+	double invmass; // 1/mass
+	
+	double I; // moment of inertia
+	double invI; // 1/moment of inertia
+	
 	Vector netforce;
+	double nettorque;
 	
 	enum Type {body, circle, polygon};
 	
@@ -64,17 +78,38 @@ public class Body
 		this.netforce.increment(f);
 	}
 	
-	/**Updates object position, velocity and acceleration
+	/**Updates object position, velocity, and acceleration
 	 * @param tstep = interval over which acceleration is applied (smaller values mean smoother, slower movement)
 	 */
-	void update(double tstep)
+	void integrate(double tstep)
 	{
+		integratelin(tstep);
+		integrateang(tstep);
+	}
+	
+	/**Updates position, velocity, and acceleration
+	 * @param tstep = interval over which acceleration is applied (smaller values mean smoother, slower movement)
+	 */
+	protected void integratelin(double tstep)
+	{
+		//update linear variables
 		Vector acceleration = Vector.mpy(this.netforce, this.invmass);
 		Vector velocity = Vector.add(Vector.mpy(this.acc, tstep), this.vel);
 		Vector position = Vector.add(Vector.add(Vector.mpy(this.acc, 0.5*tstep*tstep), Vector.mpy(this.vel, tstep)), this.pos);
 		this.acc = acceleration.get();
 		this.vel = velocity.get();
 		this.pos = position.get();
+	}
+	
+	/**Updates theta, omega, and alpha
+	 * @param tstep = interval over which acceleration is applied (smaller values mean smoother, slower movement)
+	 */
+	protected void integrateang(double tstep)
+	{
+		//update angular variables
+		this.alpha = this.nettorque * this.invI; //update acceleration
+		this.omega += this.alpha * tstep; //update velocity
+		this.theta = (0.5 * this.alpha * tstep * tstep + this.omega * tstep + this.theta) % tau; //update position
 	}
 	
 	Type getType()
