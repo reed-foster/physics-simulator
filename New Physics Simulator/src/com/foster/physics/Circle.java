@@ -21,6 +21,8 @@ public class Circle extends Body
 	{
 		super(mass, pos, vel, acc, mu, e);
 		this.radius = radius;
+		this.I = 0.5 * mass * radius * radius;
+		this.invI = this.I == 0 ? 0 : 1/this.I;
 		bounds = getAABB(pos, radius);
 	}
 	
@@ -64,15 +66,10 @@ public class Circle extends Body
 	/**Updates object position, velocity and acceleration
 	 * @param tstep = interval over which acceleration is applied (smaller values mean smoother, slower movement)
 	 */
-	void update(double tstep)
+	void integrate(double tstep)
 	{
-		Vector acceleration = Vector.mpy(this.netforce, this.invmass);
-		Vector velocity = Vector.add(Vector.mpy(this.acc, tstep), this.vel);
-		Vector position = Vector.add(Vector.add(Vector.mpy(this.acc, 0.5*tstep*tstep), Vector.mpy(this.vel, tstep)), this.pos);
+		super.integrate(tstep);
 		AABB aabb = getAABB(this.pos, this.radius);
-		this.acc = acceleration.get();
-		this.vel = velocity.get();
-		this.pos = position.get();
 		this.bounds = aabb.get();
 	}
 	
