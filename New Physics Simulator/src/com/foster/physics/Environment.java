@@ -11,7 +11,7 @@ import java.awt.RenderingHints;
  */
 public class Environment
 {
-	static final double tstep = 0.0005;
+	static final double tstep = 0.01;
 	static final int dispwidth = 800;
 	static final int dispheight = 600;
 	List<Polygon> polygons = new ArrayList<Polygon>();
@@ -46,12 +46,12 @@ public class Environment
 	{
 		for (Polygon i : polygons)
 		{
-			i.update(tstep);
+			i.integrate(tstep);
 		}
 		for (Circle i : circles)
 		{
 			//System.out.println("Updating " + i.toString());
-			i.update(tstep);
+			i.integrate(tstep);
 		}
 	}
 	
