@@ -102,6 +102,16 @@ public class Vector
 		double elementy = a.y * b;
 		return new Vector(elementx, elementy);
 	}
+	/**Multiples a Matrix by a vector
+	 * @param a = matrix
+	 * @return multiplied vector
+	 */
+	Vector mpy(Matrix a)
+	{
+		double x = this.x * a.get(0, 0) + this.y * a.get(0, 1);
+		double y = this.x * a.get(1, 0) + this.y * a.get(1, 1);
+		return new Vector(x, y);
+	}
 	
 	/**Finds the magnitude of a vector
 	* @return magnitude
@@ -187,10 +197,10 @@ public class Vector
 		return new Vector(this.y, -this.x);
 	}
 	
-	/**Reflects vector across axis
+	/*/**Reflects vector across axis
 	* @param axis = axis to reflect across
 	* @return vector that has been reflected
-	*/
+	*
 	Vector reflect(Vector axis)
 	{
 		Vector thisvector = new Vector(this.x, this.y);
@@ -199,6 +209,17 @@ public class Vector
 		projection.scale(Vector.project(thisvector, axisperp.norm()));
 		Vector reflection = Vector.sub(thisvector, Vector.mpy(projection, 2));
 		return reflection;
+	}*/
+	
+	/**Rotates a Vector counterclockwise by theta radians
+	 * @param theta = angle (in radians) to rotate vector by
+	 * @return rotated vector
+	 */
+	Vector rotate(double theta)
+	{
+		Matrix rotationmatrix = new Matrix(Math.cos(theta), -Math.sin(theta), Math.cos(theta), Math.sin(theta));
+		Vector rotatedvector = this.mpy(rotationmatrix);
+		return rotatedvector;
 	}
 	
 	//debugging
