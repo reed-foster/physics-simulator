@@ -197,10 +197,10 @@ public class Vector
 		return new Vector(this.y, -this.x);
 	}
 	
-	/*/**Reflects vector across axis
+	/**Reflects vector across axis
 	* @param axis = axis to reflect across
 	* @return vector that has been reflected
-	*
+	*/
 	Vector reflect(Vector axis)
 	{
 		Vector thisvector = new Vector(this.x, this.y);
@@ -209,7 +209,7 @@ public class Vector
 		projection.scale(Vector.project(thisvector, axisperp.norm()));
 		Vector reflection = Vector.sub(thisvector, Vector.mpy(projection, 2));
 		return reflection;
-	}*/
+	}
 	
 	/**Rotates a Vector counterclockwise by theta radians
 	 * @param theta = angle (in radians) to rotate vector by
@@ -217,7 +217,7 @@ public class Vector
 	 */
 	Vector rotate(double theta)
 	{
-		Matrix rotationmatrix = new Matrix(Math.cos(theta), -Math.sin(theta), Math.cos(theta), Math.sin(theta));
+		Matrix rotationmatrix = new Matrix(Math.cos(theta), -Math.sin(theta), Math.sin(theta), Math.cos(theta));
 		Vector rotatedvector = this.mpy(rotationmatrix);
 		return rotatedvector;
 	}

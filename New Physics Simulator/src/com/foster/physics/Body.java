@@ -5,7 +5,7 @@ package com.foster.physics;
  */
 public class Body
 {
-	private static final double tau = Math.PI * 2;
+	protected static final double tau = Math.PI * 2;
 	//Linear Motion
 	Vector pos;
 	Vector vel;
@@ -25,8 +25,8 @@ public class Body
 	double I; // moment of inertia
 	double invI; // 1/moment of inertia
 	
-	Vector netforce;
-	double nettorque;
+	protected Vector netforce;
+	protected double nettorque;
 	
 	enum Type {body, circle, polygon};
 	
@@ -76,6 +76,17 @@ public class Body
 	void addForce(Vector f)
 	{
 		this.netforce.increment(f);
+	}
+	
+	void addForce(Vector f, Vector r)
+	{
+		addForce(f);
+		this.nettorque += Vector.dot(f, r.perp().norm()) * -r.mag();
+	}
+	
+	double gettorque(Vector f)
+	{
+		return 5;
 	}
 	
 	/**Updates object position, velocity, and acceleration

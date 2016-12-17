@@ -11,7 +11,7 @@ import java.awt.RenderingHints;
  */
 public class Environment
 {
-	static final double tstep = 0.01;
+	static final double tstep = 0.001;
 	static final int dispwidth = 800;
 	static final int dispheight = 600;
 	List<Polygon> polygons = new ArrayList<Polygon>();
@@ -109,8 +109,8 @@ public class Environment
 			{
 				int idx1 = j;
 				int idx2 = (j + 1) % vertices.length;
-				Vector v1 = vertices[idx1];
-				Vector v2 = vertices[idx2];
+				Vector v1 = Vector.add(vertices[idx1], i.pos);
+				Vector v2 = Vector.add(vertices[idx2], i.pos);
 				drawLine(g2d, v1, v2);//g2d.drawLine((int) v1.getx(), (int) v1.gety(), (int) v2.getx(), (int) v2.gety());
 			}
 		}

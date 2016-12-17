@@ -86,8 +86,12 @@ public class Polygon extends Body
 	}
 	
 	private Vector[] getvertices(Vector[] vertices, double theta) {
-		// TODO Auto-generated method stub
-		return null;
+		//Vector[] retvert = new Vector[vertices.length];
+		for(int i = 0; i < vertices.length; i++)
+		{
+			vertices[i] = vertices[i].rotate(theta);
+		}
+		return vertices;
 	}
 	
 	/**Updates object position, velocity and acceleration
@@ -96,7 +100,12 @@ public class Polygon extends Body
 	void integrate(double tstep)
 	{
 		super.integratelin(tstep);
-		this.vertices = getvertices(this.vertices, this.theta);
+		//update angular variables
+		this.alpha = this.nettorque * this.invI; //update acceleration
+		this.omega += this.alpha * tstep; //update velocity
+		double dtheta = 0.5 * this.alpha * tstep * tstep + this.omega * tstep; //get the change in theta
+		this.theta = (dtheta + this.theta) % tau; //update position
+		this.vertices = getvertices(this.vertices, dtheta);
 		AABB aabb = getAABB(this.pos, this.vertices);
 		this.bounds = aabb.get();
 	}
