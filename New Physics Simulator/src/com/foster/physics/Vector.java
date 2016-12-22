@@ -141,6 +141,17 @@ public class Vector
 		return a.x * b.x + a.y * b.y;
 	}
 	
+	/**Computes the magnitude of the cross product of vectors a and b
+	 * (magnitude only because a is a member of R2, so there is no axis perpendicular to the plane containing a and b)
+	 * @param a = 1st vector
+	 * @param b = 2nd vector
+	 * @return a cross b
+	 */
+	static double cross(Vector a, Vector b)
+	{
+		return dot(a, b.perp().norm()) * b.mag();
+	}
+	
 	/**Finds the Vector parallel to axis that, when projected onto c, has length projection
 	 * @param axis
 	 * @param c
