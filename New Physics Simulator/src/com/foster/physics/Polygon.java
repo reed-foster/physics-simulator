@@ -21,6 +21,15 @@ public class Polygon extends Body
 	{
 		super(mass, pos, vel, acc, mu, e);
 		this.vertices = vertices;
+		Vector newpos = this.getCenterOfMass();
+		Vector absvert;
+		for(Vector i: this.vertices)
+		{
+			absvert = Vector.add(this.pos, i);
+			i = Vector.sub(absvert, newpos);
+		}
+		this.I = this.getI();
+		this.invI = this.I == 0 ? 0 : 1 / this.I;
 		bounds = getAABB(pos, vertices);
 	}
 	
@@ -35,6 +44,15 @@ public class Polygon extends Body
 	{
 		super(mass, pos, mu, e);
 		this.vertices = vertices;
+		Vector newpos = this.getCenterOfMass();
+		Vector absvert;
+		for(Vector i: this.vertices)
+		{
+			absvert = Vector.add(this.pos, i);
+			i = Vector.sub(absvert, newpos);
+		}
+		this.I = this.getI();
+		this.invI = this.I == 0 ? 0 : 1 / this.I;
 		bounds = getAABB(pos, vertices);
 	}
 	
@@ -47,6 +65,15 @@ public class Polygon extends Body
 	{
 		super(mass, pos);
 		this.vertices = vertices;
+		Vector newpos = this.getCenterOfMass();
+		Vector absvert;
+		for(Vector i: this.vertices)
+		{
+			absvert = Vector.add(this.pos, i);
+			i = Vector.sub(absvert, newpos);
+		}
+		this.I = this.getI();
+		this.invI = this.I == 0 ? 0 : 1 / this.I;
 		bounds = getAABB(pos, vertices);
 	}
 	
@@ -127,6 +154,40 @@ public class Polygon extends Body
 				maxproj = currentproj;
 		}
 		return new Vector(minproj, maxproj);
+	}
+	
+	private Vector getCenterOfMass()
+	{
+		double area = 0;
+		double cx = 0;
+		double cy = 0;
+		int numvert = this.vertices.length;
+		for (int i = 0; i < numvert; i++)
+		{
+			Vector v1 = vertices[i];
+			Vector v2 = vertices[(i + 1) % numvert];
+			double x1y2_x2y1 = v1.getx() * v2.gety() - v2.getx() * v1.gety();
+			area += x1y2_x2y1;
+			cx += (v1.getx() + v2.getx()) * x1y2_x2y1;
+			cy += (v1.gety() + v2.gety()) * x1y2_x2y1;
+		}
+		cx *= 1 / (6 * area);
+		cy *= 1 / (6 * area);
+		return new Vector(cx, cy);
+	}
+	
+	private double getI()
+	{
+		double numerator = 0, denominator = 0;
+		int numvert = this.vertices.length;
+		for (int i = 0; i < numvert; i++)
+		{
+			Vector p1 = vertices[i];
+			Vector p2 = vertices[(i + 1) % numvert];
+			numerator += Vector.cross(p1, p2) * (Vector.dot(p1, p1) + Vector.dot(p1, p2) + Vector.dot(p2, p2));
+			denominator += Vector.cross(p1, p2);
+		}
+		return (this.mass / 6) * (numerator/denominator);
 	}
 	
 	Type getType()
