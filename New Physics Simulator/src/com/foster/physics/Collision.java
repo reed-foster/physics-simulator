@@ -72,6 +72,7 @@ public class Collision
 		//inelastic collision
 		double e_c = Math.min(a.e, b.e); //coefficient of restitution
 		//va = (e * mb (ub - ua) + ma * ua + mb * ub) / (ma + mb)
+		//vb = (e * ma (ua - ub) + ma * ua + mb * ub) / (ma + mb)
 		Vector maua = Vector.mpy(a.vel, a.mass);
 		Vector mbub = Vector.mpy(b.vel, b.mass);
 		Vector va = Vector.mpy(Vector.add(Vector.add(Vector.mpy(Vector.sub(b.vel, a.vel), e_c * b.mass), maua), mbub), 1 / (a.mass + b.mass));
