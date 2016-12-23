@@ -42,12 +42,12 @@ class Main extends JPanel
 			double density = (Math.random() + 2) * 5;
 			Vector position = new Vector((Math.random() + 0.01) * (Environment.dispwidth - 20), (Math.random() + 0.01) * (Environment.dispheight - 20));
 			double radius = (Math.random() + 2) * 5;
-			double restitution = 1;//(Math.random() + 9) / 10;
+			double restitution = 0;//(Math.random() + 9) / 10;
 			Circle newcirc = new Circle(density * Math.PI * radius * radius * radius, position, 0, restitution, radius/3);
 			environment.newEntity(newcirc);
 			Vector rand_vel = new Vector((Math.random() - 0.5) * 500, (Math.random() - 0.5) * 500);
 			newcirc.vel = rand_vel.get();
-			//newcirc.addForce(new Vector(0, -100 * newcirc.mass));
+			newcirc.addForce(new Vector(0, -9.8 * newcirc.mass));
 		}
 	}
 	
@@ -61,16 +61,17 @@ class Main extends JPanel
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		//addcircles();
-		Vector[] vertlist = new Vector[5];
+		main.addcircles();
+		/*Vector[] vertlist = new Vector[5];
 		for(int i = 0; i < 5; i++)
 		{
 			vertlist[i] = new Vector(50*Math.sin(i * 2 * Math.PI/5), 50*Math.cos(i * 2 * Math.PI/5));
 		}
 		Polygon p = new Polygon(1, new Vector(500, 500), vertlist);
-		//p.alpha = 50;
-		p.addForce(new Vector(1,0), new Vector(0,1));
-		environment.newEntity(p);
+		//p.omega = 5;
+		p.addForce(new Vector(5, 0), new Vector(0, 10));
+		p.addForce(new Vector(-5, 0), new Vector(0, -10));
+		environment.newEntity(p);*/
 		
 		while (true)
 		{
