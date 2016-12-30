@@ -17,11 +17,11 @@ public class Circle extends Body
 	 * @param e = coefficient of restitution
 	 * @param radius = radius of circle
 	 */
-	Circle(double mass, Vector pos, Vector vel, Vector acc, double mu, double e, double radius)
+	Circle(double mass, Vector pos, Vector vel, Vector acc, double mu_s, double mu_k, double e, double radius)
 	{
-		super(mass, pos, vel, acc, mu, e);
+		super(mass, pos, vel, acc, mu_s, mu_k, e);
 		this.radius = radius;
-		this.I = 0.5 * mass * radius * radius;
+		this.I = 0.5 * mass * radius * radius * 10;
 		this.invI = this.I == 0 ? 0 : 1/this.I;
 		bounds = getAABB(pos, radius);
 	}
@@ -33,13 +33,9 @@ public class Circle extends Body
 	 * @param e = coefficient of restitution
 	 * @param radius = radius of circle
 	 */
-	Circle(double mass, Vector pos, double mu, double e, double radius)
+	Circle(double mass, Vector pos, double mu_s, double mu_k, double e, double radius)
 	{
-		super(mass, pos, mu, e);
-		this.radius = radius;
-		this.I = 0.5 * mass * radius * radius;
-		this.invI = this.I == 0 ? 0 : 1/this.I;
-		bounds = getAABB(pos, radius);
+		this(mass, pos, Vector.zeroVector, Vector.zeroVector, mu_s, mu_k, e, radius);
 	}
 	
 	/**Constructor for circles with 0 velocity, 0 acceleration, 0 friction, and e of 1
@@ -49,11 +45,7 @@ public class Circle extends Body
 	 */
 	Circle(double mass, Vector pos, double radius)
 	{
-		super(mass, pos);
-		this.radius = radius;
-		this.I = 0.5 * mass * radius * radius;
-		this.invI = this.I == 0 ? 0 : 1/this.I;
-		bounds = getAABB(pos, radius);
+		this(mass, pos, 0, 0, 1, radius);
 	}
 	
 	/**Gets the AABB of a Circle based on its pos and radius
