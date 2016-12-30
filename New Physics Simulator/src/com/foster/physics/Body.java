@@ -16,7 +16,8 @@ public class Body
 	double omega; //angular velocity
 	double alpha; //angular acceleration
 	
-	double mu;
+	double mu_static;
+	double mu_kinetic;
 	double e;
 	
 	double mass; //mass of body
@@ -35,16 +36,21 @@ public class Body
 	 * @param pos = position of body's center of mass
 	 * @param vel = velocity
 	 * @param acc = acceleration
-	 * @param mu = coefficient of friction
+	 * @param mu_s = static coefficient of friction
+	 * @param mu_k = kinetic coefficient of friction
 	 * @param e = coefficient of restitution
 	 */
-	Body(double mass, Vector pos, Vector vel, Vector acc, double mu, double e)
+	Body(double mass, Vector pos, Vector vel, Vector acc, double mu_s, double mu_k, double e)
 	{
 		this.mass = mass;
 		this.pos = pos;
 		this.vel = vel;
 		this.acc = acc;
-		this.mu = mu;
+		this.theta = 0;
+		this.omega = 0;
+		this.alpha = 0;
+		this.mu_static = mu_s;
+		this.mu_kinetic = mu_k;
 		this.e = e;
 		this.invmass = this.mass != 0 ? 1/this.mass : 0.0;
 		this.netforce = new Vector(0, 0);
@@ -53,12 +59,13 @@ public class Body
 	/**Constructor for Rigid Bodies with 0 velocity and 0 acceleration
 	 * @param mass = mass of body
 	 * @param pos = position of body's center of mass
-	 * @param mu = coefficient of friction
+	 * @param mu_s = static coefficient of friction
+	 * @param mu_k = kinetic coefficient of friction
 	 * @param e = coefficient of restitution
 	 */
-	Body(double mass, Vector pos, double mu, double e)
+	Body(double mass, Vector pos, double mu_s, double mu_k, double e)
 	{
-		this(mass, pos, Vector.zeroVector, Vector.zeroVector, mu, e);
+		this(mass, pos, Vector.zeroVector, Vector.zeroVector, mu_s, mu_k, e);
 	}
 	
 	/**Constructor for Rigid Bodies with 0 velocity, 0 acceleration, 0 friction, and e of 1
@@ -67,7 +74,7 @@ public class Body
 	 */
 	Body(double mass, Vector pos)
 	{
-		this(mass, pos, 0, 1);
+		this(mass, pos, 0, 0, 1);
 	}
 	
 	/**Increments the netforce vector by vector f
