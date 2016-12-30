@@ -41,7 +41,6 @@ public class Collision
 		  r_a = radius of circle a
 		  r_b = radius of circle b
 		  ||S|| indicates the magnitude of S
-		  mtv = ||S_ab|| - (||S_ab|| - r_a + ||S_ab|| - r_b)
 		  mtv = -||S_ab|| + r_a + r_b */
 		Vector mtv_norm = cent_axis.norm();
 		Vector mtv = mtv_norm.get();
@@ -49,39 +48,36 @@ public class Collision
 		mtv.scale(mtvlen);
 		
 		//move objects so there is zero penetration
-		a.pos.increment(mtv);
+		Vector vab = Vector.sub(a.vel, b.vel);
+		double vx = vab.getx();
+		double vy = vab.gety();
+		double dx = cent_axis.getx();
+		double dy = cent_axis.gety();
+		double ra = a.radius;
+		double rb = b.radius;
+		double dx2vy2 = dx * dx * vy * vy;
+		double dxdyvxvy = dx * dy * vx * vy;
+		double dy2vx2 = dy * dy * vx * vx;
+		double rarb2 = (ra + rb) * (ra + rb);
+		double vx2vy2 = vx * vx + vy * vy;
+		double dxvx = dx * vx;
+		double dyvy = dy * vy;
+		double t = -(Math.sqrt(-dx2vy2 + 2 * dxdyvxvy - dy2vx2 + rarb2 * vx2vy2) + dxvx + dyvy) / vx2vy2;
+		//double t = -(Math.sqrt(-(dx * dx) * (vy * vy) + 2 * (dx * dy) * (vx * vy) - (dy * dy) * (vx * vx) + (ra + rb) * (ra + rb) * (vx * vx + vy * vy)) + dx * vx + dy * vy)/ (vx * vx + vy * vy);
+		//double precollide_t = Environment.tstep * Vector.invdotmag(Vector.mpy(vab, Environment.tstep), mtv_norm, mtvlen) / vab.mag();
+		a.pos.increment(Vector.mpy(a.vel, t)); //multiply by 1.01 to make sure shapes are no longer in contact
+		b.pos.increment(Vector.mpy(b.vel, t));
 		
-		/*Vector v_ab = Vector.sub(a.vel, b.vel);
-		double v_ab_mag = v_ab.mag();
-		//get the time required to move objects
-		double t_req = Vector.invdotmag(v_ab, mtv_norm, mtvlen) / v_ab_mag;
-		//get the time left over post collision
-		double t_post = Environment.tstep - t_req;
-		a.pos.decrement(Vector.mpy(a.vel, (t_req + 0.05 * Environment.tstep)));
-		b.pos.decrement(Vector.mpy(b.vel, (t_req + 0.05 * Environment.tstep)));*/
+		Vector rpap = Vector.mpy(mtv_norm, a.radius);
+		Vector rpbp = Vector.mpy(mtv_norm, b.radius);
 		
-		//change objects velocity
-		//elastic collision
-		//va = (mb(2ub - ua) + maua) / (ma + mb)
-		//vb = (ma(2ua - ub) + mbub) / (ma + mb)
-		//Vector va = Vector.mpy(Vector.add(Vector.mpy(Vector.sub(Vector.mpy(b.vel, 2), a.vel), b.mass), Vector.mpy(a.vel, a.mass)), 1 / (a.mass + b.mass));
-		//Vector vb = Vector.mpy(Vector.add(Vector.mpy(Vector.sub(Vector.mpy(a.vel, 2), b.vel), a.mass), Vector.mpy(b.vel, b.mass)), 1 / (a.mass + b.mass));
-		//a.vel = va;
-		//b.vel = vb;
-		
-		//inelastic collision
-		double e_c = Math.min(a.e, b.e); //coefficient of restitution
-		//va = (e * mb (ub - ua) + ma * ua + mb * ub) / (ma + mb)
-		//vb = (e * ma (ua - ub) + ma * ua + mb * ub) / (ma + mb)
-		Vector maua = Vector.mpy(a.vel, a.mass);
-		Vector mbub = Vector.mpy(b.vel, b.mass);
-		Vector va = Vector.mpy(Vector.add(Vector.add(Vector.mpy(Vector.sub(b.vel, a.vel), e_c * b.mass), maua), mbub), 1 / (a.mass + b.mass));
-		Vector vb = Vector.mpy(Vector.add(Vector.add(Vector.mpy(Vector.sub(a.vel, b.vel), e_c * a.mass), maua), mbub), 1 / (a.mass + b.mass));
-		a.vel = va.get();
-		b.vel = vb.get();
-		//update object position
-		//a.pos.increment(Vector.mpy(a.vel, (t_post - 0 * Environment.tstep)));
-		//b.pos.increment(Vector.mpy(b.vel, (t_post - 0 * Environment.tstep)));
+		Vector J = Vector.mpy(Vector.mpy(Vector.sub(a.vel, b.vel), -(1 + Math.min(a.e, b.e))), 1 / (a.invmass + b.invmass + (Vector.dot(rpap, mtv) * Vector.dot(rpap, mtv)) * a.invI + (Vector.dot(rpbp, mtv) * Vector.dot(rpbp, mtv)) * b.invI));
+		double j = Vector.dot(J, mtv_norm);
+		J = Vector.add(Vector.mpy(mtv_norm, j), Vector.mpy(Vector.mpy(mtv_norm.perp(), Vector.dot(vab, mtv_norm.perp())).norm(), j * Math.max(a.mu_kinetic, b.mu_kinetic)));
+		a.vel.increment(Vector.mpy(J, a.invmass));
+		b.vel.increment(Vector.mpy(J, -b.invmass));
+		a.omega += Vector.dot(rpap, J) * a.invI;
+		b.omega -= Vector.dot(rpbp, J) * b.invI;
 	}
 	
 	/**Collides a Circle with a Polygon
@@ -132,7 +128,7 @@ public class Collision
 	}
 	
 	/**Collides a Polygon with a Circle
-	 * calls the collide(Circle a, Polygon b) with the arguments swapped
+	 * calls collide(Circle a, Polygon b) with the arguments swapped
 	 * @param a = Polygon
 	 * @param b = Circle
 	 */
@@ -204,11 +200,11 @@ public class Collision
 	
 	static void collidewalls(Circle a)
 	{
-		if (a.pos.getx() - a.radius < 0 || a.pos.getx() + a.radius > Environment.dispwidth)
+		if (a.pos.getx() - a.radius < 0 || a.pos.getx() + a.radius > Environment.dispwidth) //colliding with walls
 		{
 			a.vel = new Vector(-a.e * a.vel.getx(), a.vel.gety());
 		}
-		if (a.pos.gety() - a.radius < 0 || a.pos.gety() + a.radius > Environment.dispheight)
+		if (a.pos.gety() - a.radius < 0 || a.pos.gety() + a.radius > Environment.dispheight) //colliding with floor/ceiling
 		{
 			a.vel = new Vector(a.vel.getx(), -a.e * a.vel.gety());
 		}
