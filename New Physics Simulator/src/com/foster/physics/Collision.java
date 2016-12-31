@@ -18,13 +18,9 @@ public class Collision
 		if (a.equals(b))
 			return;
 		
-		//System.out.println("A and B are not the same circle");
-		
 		//broad-phase: test if AABBs collide
 		if (!collide(a.bounds, b.bounds))
 			return;
-		
-		//System.out.println("A and B's AABBs are colliding");
 		
 		//narrow-phase: test if circles collide
 		Vector cent_axis = Vector.sub(a.pos, b.pos);
@@ -32,8 +28,6 @@ public class Collision
 		double r_sq = (a.radius + b.radius) * (a.radius + b.radius);
 		if (a_to_b_dist_sq > r_sq)
 			return;
-		
-		//System.out.println("A and B are colliding");
 		
 		//circles collided, do collision response
 		//get MTV (minimum translation vector)
@@ -48,36 +42,28 @@ public class Collision
 		mtv.scale(mtvlen);
 		
 		//move objects so there is zero penetration
-		Vector vab = Vector.sub(a.vel, b.vel);
-		double vx = vab.getx();
-		double vy = vab.gety();
-		double dx = cent_axis.getx();
-		double dy = cent_axis.gety();
-		double ra = a.radius;
-		double rb = b.radius;
-		double dx2vy2 = dx * dx * vy * vy;
-		double dxdyvxvy = dx * dy * vx * vy;
-		double dy2vx2 = dy * dy * vx * vx;
-		double rarb2 = (ra + rb) * (ra + rb);
-		double vx2vy2 = vx * vx + vy * vy;
-		double dxvx = dx * vx;
-		double dyvy = dy * vy;
-		double t = -(Math.sqrt(-dx2vy2 + 2 * dxdyvxvy - dy2vx2 + rarb2 * vx2vy2) + dxvx + dyvy) / vx2vy2;
-		//double t = -(Math.sqrt(-(dx * dx) * (vy * vy) + 2 * (dx * dy) * (vx * vy) - (dy * dy) * (vx * vx) + (ra + rb) * (ra + rb) * (vx * vx + vy * vy)) + dx * vx + dy * vy)/ (vx * vx + vy * vy);
-		//double precollide_t = Environment.tstep * Vector.invdotmag(Vector.mpy(vab, Environment.tstep), mtv_norm, mtvlen) / vab.mag();
-		a.pos.increment(Vector.mpy(a.vel, t)); //multiply by 1.01 to make sure shapes are no longer in contact
-		b.pos.increment(Vector.mpy(b.vel, t));
-		
-		Vector rpap = Vector.mpy(mtv_norm, a.radius);
-		Vector rpbp = Vector.mpy(mtv_norm, b.radius);
-		
-		Vector J = Vector.mpy(Vector.mpy(Vector.sub(a.vel, b.vel), -(1 + Math.min(a.e, b.e))), 1 / (a.invmass + b.invmass + (Vector.dot(rpap, mtv) * Vector.dot(rpap, mtv)) * a.invI + (Vector.dot(rpbp, mtv) * Vector.dot(rpbp, mtv)) * b.invI));
-		double j = Vector.dot(J, mtv_norm);
-		J = Vector.add(Vector.mpy(mtv_norm, j), Vector.mpy(Vector.mpy(mtv_norm.perp(), Vector.dot(vab, mtv_norm.perp())).norm(), j * Math.max(a.mu_kinetic, b.mu_kinetic)));
-		a.vel.increment(Vector.mpy(J, a.invmass));
-		b.vel.increment(Vector.mpy(J, -b.invmass));
-		a.omega += Vector.dot(rpap, J) * a.invI;
-		b.omega -= Vector.dot(rpbp, J) * b.invI;
+		Vector vab = Vector.sub(b.vel, a.vel);
+		Vector displacement = Vector.invdot(vab, mtv_norm, mtvlen);
+		a.pos.increment(Vector.mpy(a.vel.norm(), Vector.dot(a.vel, displacement) * Environment.tstep));
+		b.pos.decrement(Vector.mpy(b.vel.norm(), Vector.dot(b.vel, displacement) * Environment.tstep));
+
+		if (Vector.dot(cent_axis, vab) == 0) //Circles are stationary but touching, apply normal force
+		{
+			
+		}
+		else
+		{
+			Vector rpap = Vector.mpy(mtv_norm, a.radius);
+			Vector rpbp = Vector.mpy(mtv_norm, b.radius);
+			
+			Vector J = Vector.mpy(Vector.mpy(Vector.sub(a.vel, b.vel), -(1 + Math.min(a.e, b.e))), 1 / (a.invmass + b.invmass + (Vector.dot(rpap, mtv) * Vector.dot(rpap, mtv)) * a.invI + (Vector.dot(rpbp, mtv) * Vector.dot(rpbp, mtv)) * b.invI));
+			//double j = Vector.dot(J, mtv_norm);
+			//J = Vector.add(Vector.mpy(mtv_norm, j), Vector.mpy(Vector.mpy(mtv_norm.perp(), Vector.dot(vab, mtv_norm.perp())).norm(), j * Math.max(a.mu_kinetic, b.mu_kinetic)));
+			a.vel.increment(Vector.mpy(J, a.invmass));
+			b.vel.increment(Vector.mpy(J, -b.invmass));
+			a.omega += Vector.dot(rpap, J) * a.invI;
+			b.omega -= Vector.dot(rpbp, J) * b.invI;
+		}
 	}
 	
 	/**Collides a Circle with a Polygon
@@ -200,11 +186,11 @@ public class Collision
 	
 	static void collidewalls(Circle a)
 	{
-		if (a.pos.getx() - a.radius < 0 || a.pos.getx() + a.radius > Environment.dispwidth) //colliding with walls
+		if (a.pos.getx() - a.radius < 0 || a.pos.getx() + a.radius > Environment.dispwidth)
 		{
 			a.vel = new Vector(-a.e * a.vel.getx(), a.vel.gety());
 		}
-		if (a.pos.gety() - a.radius < 0 || a.pos.gety() + a.radius > Environment.dispheight) //colliding with floor/ceiling
+		if (a.pos.gety() - a.radius < 0 || a.pos.gety() + a.radius > Environment.dispheight)
 		{
 			a.vel = new Vector(a.vel.getx(), -a.e * a.vel.gety());
 		}
