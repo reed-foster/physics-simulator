@@ -21,7 +21,7 @@ public class Circle extends Body
 	{
 		super(mass, pos, vel, acc, mu_s, mu_k, e);
 		this.radius = radius;
-		this.I = 0.5 * mass * radius * radius * 10;
+		this.I = 0.5 * mass * radius * radius;
 		this.invI = this.I == 0 ? 0 : 1/this.I;
 		bounds = getAABB(pos, radius);
 	}
