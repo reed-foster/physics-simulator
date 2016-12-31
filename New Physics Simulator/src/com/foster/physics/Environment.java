@@ -11,19 +11,24 @@ import java.awt.RenderingHints;
  */
 public class Environment
 {
-	static final double tstep = 0.001;
+	static final double tstep = 0.01;
 	static final int dispwidth = 800;
 	static final int dispheight = 600;
 	List<Polygon> polygons = new ArrayList<Polygon>();
 	List<Circle> circles = new ArrayList<Circle>();
 	private int polysize, circlesize;
 	
+	/**Class constructor, creates an environment into which bodies can be added
+	 */
 	Environment()
 	{
 		polysize = 0;
 		circlesize = 0;
 	}
 	
+	/**Adds an entity to the environment
+	 * @param a = body to add
+	 */
 	void newEntity(Body a)
 	{
 		switch (a.getType())
@@ -42,6 +47,8 @@ public class Environment
 		}
 	}
 	
+	/**Integrates object acceleration (linear and angular) for all entities in the environment
+	 */
 	void integrateAll()
 	{
 		for (Polygon i : polygons)
@@ -50,11 +57,12 @@ public class Environment
 		}
 		for (Circle i : circles)
 		{
-			//System.out.println("Updating " + i.toString());
 			i.integrate(tstep);
 		}
 	}
 	
+	/**Detects and resolves collisions between all entities
+	 */
 	void collideAll()
 	{
 		//Resolve body-body collisions
@@ -97,6 +105,9 @@ public class Environment
 		}
 	}
 	
+	/**Paint all entities
+	 * @param g = reference to Graphics object
+	 */
 	void paintall(Graphics g)
 	{
 		Graphics2D g2d = (Graphics2D) g;
@@ -104,33 +115,45 @@ public class Environment
 		//test: g2d.drawRect(0, 0, 50, 50);
 		for (Polygon i : polygons)
 		{
-			Vector[] vertices = i.vertices;
-			for (int j = 0; j < vertices.length; j++)
+			Triangle[] triangles = i.subsections;
+			for (int j = 0; j < triangles.length; j++)
 			{
-				int idx1 = j;
-				int idx2 = (j + 1) % vertices.length;
-				Vector v1 = Vector.add(vertices[idx1], i.pos);
-				Vector v2 = Vector.add(vertices[idx2], i.pos);
-				drawLine(g2d, v1, v2);//g2d.drawLine((int) v1.getx(), (int) v1.gety(), (int) v2.getx(), (int) v2.gety());
+				Vector p1 = Vector.add(triangles[j].getp(0), i.pos);
+				Vector p2 = Vector.add(triangles[j].getp(1), i.pos);
+				Vector p3 = Vector.add(triangles[j].getp(2), i.pos);
+				drawLine(g2d, p1, p2);
+				drawLine(g2d, p2, p3);
+				drawLine(g2d, p3, p1);
 			}
 		}
 		for (Circle i : circles)
 		{
-			//int diam = (int) (2 * i.radius);
-			//g2d.drawRect((int) (i.bounds.min.getx()), (int) (dispheight - i.bounds.min.gety() - 2*i.radius), (int) (2 * i.radius), (int) (2 * i.radius));
-			drawCircle(g2d, i.pos, i.radius); //g2d.drawOval((int) i.pos.getx(), (int) i.pos.gety(), diam, diam);
+			drawCircle(g2d, i);
 		}
 	}
 	
-	void drawLine(Graphics2D g2d, Vector p1, Vector p2)
+	/**Draws a line between two point vectors
+	 * @param g2d = reference to Graphics2D object
+	 * @param p1 = 1st point vector
+	 * @param p2 = 2nd point vector
+	 */
+	private void drawLine(Graphics2D g2d, Vector p1, Vector p2)
 	{
-		
 		g2d.drawLine((int) p1.getx(), (int) (dispheight - p1.gety()), (int) p2.getx(), (int) (dispheight - p2.gety()));
 	}
 	
-	void drawCircle(Graphics2D g2d, Vector p, double radius)
+	/**Draws a circle
+	 * @param g2d = reference to Graphics2D object
+	 * @param i = reference to Circle object
+	 */
+	private void drawCircle(Graphics2D g2d, Circle i)
 	{
-		int diam = (int) (2 * radius);
-		g2d.drawOval((int) (p.getx() - radius), (int) (dispheight - p.gety() - radius), diam, diam);
+		int diam = (int) (2 * i.radius);
+		g2d.drawOval((int) (i.pos.getx() - i.radius), (int) (dispheight - i.pos.gety() - i.radius), diam, diam);
+		int x1 = (int) i.pos.getx();
+		int y1 = dispheight - (int) i.pos.gety();
+		int x2 = x1 + (int) (i.radius * Math.cos(i.theta));
+		int y2 = y1 + (int) (i.radius * Math.sin(i.theta));
+		g2d.drawLine(x1, y1, x2, y2);
 	}
 }
