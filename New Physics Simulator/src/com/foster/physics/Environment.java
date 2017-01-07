@@ -150,10 +150,10 @@ public class Environment
 	{
 		int diam = (int) (2 * i.radius);
 		g2d.drawOval((int) (i.pos.getx() - i.radius), (int) (dispheight - i.pos.gety() - i.radius), diam, diam);
-		int x1 = (int) i.pos.getx();
-		int y1 = dispheight - (int) i.pos.gety();
-		int x2 = x1 + (int) (i.radius * Math.cos(i.theta));
-		int y2 = y1 + (int) (i.radius * Math.sin(i.theta));
-		g2d.drawLine(x1, y1, x2, y2);
+		//int x1 = (int) i.pos.getx();
+		//int y1 = dispheight - (int) i.pos.gety();
+		//int x2 = x1 + (int) (i.radius * Math.cos(i.theta));
+		//int y2 = y1 + (int) (i.radius * Math.sin(i.theta));
+		//g2d.drawLine(x1, y1, x2, y2);
 	}
 }
