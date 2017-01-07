@@ -201,8 +201,8 @@ public class Collision
 		double xmax = a.pos.getx() + a.radius;
 		double ymin = a.pos.gety() - a.radius;
 		double ymax = a.pos.gety() + a.radius;
-		double xpenetration = xmin <= 0 ? xmax >= Environment.dispwidth ? xmax - Environment.dispwidth : -xmin : 0;
-		double ypenetration = ymin <= 0 ? ymax >= Environment.dispheight ? ymax - Environment.dispheight : -ymin : 0;
+		//double xpenetration = xmin <= 0 ? xmax >= Environment.dispwidth ? xmax - Environment.dispwidth : -xmin : 0;
+		//double ypenetration = ymin <= 0 ? ymax >= Environment.dispheight ? ymax - Environment.dispheight : -ymin : 0;
 		if (xmin <= 0)
 		{
 			double penetrationdepth = a.pos.getx() - a.radius;
