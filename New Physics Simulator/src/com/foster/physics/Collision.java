@@ -43,24 +43,35 @@ public class Collision
 		
 		//move objects so there is zero penetration
 		Vector vab = Vector.sub(b.vel, a.vel);
-		Vector displacement = Vector.invdot(vab, mtv_norm, mtvlen);
-		a.pos.increment(Vector.mpy(a.vel.norm(), Vector.dot(a.vel, displacement) * Environment.tstep));
+		Vector displacement = Vector.invdot(vab.norm(), mtv_norm, mtvlen);
+		a.pos.increment(Vector.mpy(a.vel.norm(), Vector.dot(a.vel, displacement)* Environment.tstep));
 		b.pos.decrement(Vector.mpy(b.vel.norm(), Vector.dot(b.vel, displacement) * Environment.tstep));
 
-		if (Vector.dot(cent_axis, vab) == 0) //Circles are stationary but touching, apply normal force
+		if (vab.magSq() < 0.0001 && vab.magSq() > -0.0001) //Circles are stationary but touching, apply normal force
 		{
-			
+			a.addForce(Vector.mpy(mtv_norm, -Vector.dot(a.netforce, mtv_norm)));
+			b.addForce(Vector.mpy(mtv_norm, -Vector.dot(b.netforce, mtv_norm)));
 		}
 		else
 		{
-			Vector rpap = Vector.mpy(mtv_norm, a.radius);
-			Vector rpbp = Vector.mpy(mtv_norm, b.radius);
+			Vector rpap = Vector.mpy(mtv_norm, a.radius).perp();
+			Vector rpbp = Vector.mpy(mtv_norm, b.radius).perp();
 			
-			Vector J = Vector.mpy(Vector.mpy(Vector.sub(a.vel, b.vel), -(1 + Math.min(a.e, b.e))), 1 / (a.invmass + b.invmass + (Vector.dot(rpap, mtv) * Vector.dot(rpap, mtv)) * a.invI + (Vector.dot(rpbp, mtv) * Vector.dot(rpbp, mtv)) * b.invI));
-			//double j = Vector.dot(J, mtv_norm);
-			//J = Vector.add(Vector.mpy(mtv_norm, j), Vector.mpy(Vector.mpy(mtv_norm.perp(), Vector.dot(vab, mtv_norm.perp())).norm(), j * Math.max(a.mu_kinetic, b.mu_kinetic)));
+			Vector J = Vector.mpy(Vector.mpy(Vector.sub(a.vel, b.vel), -(1 + Math.min(a.e, b.e))),
+					1 / (a.invmass + b.invmass + (Vector.dot(rpap, mtv) * Vector.dot(rpap, mtv)) * a.invI + (Vector.dot(rpbp, mtv) * Vector.dot(rpbp, mtv)) * b.invI));
+			//double jmag = J.mag();
+			if(((Double)J.getx()).isNaN())
+			{
+				System.out.println("J is NaN");
+				System.out.printf("rpap = (%f, %f), rpbp = (%f, %f), mtv = (%f, %f)", rpap.getx(), rpap.gety(), rpbp.getx(), rpbp.gety(), mtv.getx(), mtv.gety());
+				System.out.printf("a.im = %f, b.im = %f, rp.mtv = %f, rp.mtv = %f\n\n", a.invmass, b.invmass, Vector.dot(rpap, mtv), Vector.dot(rpbp, mtv));
+			}
+			double j = Vector.dot(J, mtv_norm);
+			//J = mtv_norm * j + -(vab . mtv_norm.perp()) * max(a.muk, b.muk) * mtv_norm.perp()
+			Vector fdir = Vector.mpy(mtv_norm.perp(), Vector.dot(vab, mtv_norm.perp())).norm();
+			J = Vector.add(Vector.mpy(mtv_norm, j), Vector.mpy(fdir, j * Math.max(a.mu_kinetic, b.mu_kinetic)));
 			a.vel.increment(Vector.mpy(J, a.invmass));
-			b.vel.increment(Vector.mpy(J, -b.invmass));
+			b.vel.decrement(Vector.mpy(J, b.invmass));
 			a.omega += Vector.dot(rpap, J) * a.invI;
 			b.omega -= Vector.dot(rpbp, J) * b.invI;
 		}
@@ -186,18 +197,68 @@ public class Collision
 	
 	static void collidewalls(Circle a)
 	{
-		if (a.pos.getx() - a.radius < 0 || a.pos.getx() + a.radius > Environment.dispwidth)
+		double xmin = a.pos.getx() - a.radius;
+		double xmax = a.pos.getx() + a.radius;
+		double ymin = a.pos.gety() - a.radius;
+		double ymax = a.pos.gety() + a.radius;
+		double xpenetration = xmin <= 0 ? xmax >= Environment.dispwidth ? xmax - Environment.dispwidth : -xmin : 0;
+		double ypenetration = ymin <= 0 ? ymax >= Environment.dispheight ? ymax - Environment.dispheight : -ymin : 0;
+		if (xmin <= 0)
 		{
-			a.vel = new Vector(-a.e * a.vel.getx(), a.vel.gety());
+			double penetrationdepth = a.pos.getx() - a.radius;
+			Vector displacement = Vector.invdot(a.vel, Vector.ihat, penetrationdepth);
+			a.pos.increment(Vector.mpy(a.vel.norm(), Vector.dot(a.vel, displacement) * Environment.tstep));
+
+			Vector rpap = Vector.mpy(Vector.ihat, -a.radius);
+			Vector mtv = Vector.mpy(Vector.ihat, penetrationdepth);
+			applyimpulse(a, rpap, mtv);
 		}
-		if (a.pos.gety() - a.radius < 0 || a.pos.gety() + a.radius > Environment.dispheight)
+		else if (xmax >= Environment.dispwidth)
 		{
-			a.vel = new Vector(a.vel.getx(), -a.e * a.vel.gety());
+			double penetrationdepth = a.pos.getx() + a.radius - Environment.dispwidth;
+			Vector displacement = Vector.invdot(a.vel, Vector.ihat, penetrationdepth);
+			a.pos.increment(Vector.mpy(a.vel.norm(), -Vector.dot(a.vel, displacement) * Environment.tstep));
+			
+			Vector rpap = Vector.mpy(Vector.ihat, a.radius);
+			Vector mtv = Vector.mpy(Vector.ihat, -penetrationdepth);
+			applyimpulse(a, rpap, mtv);
+		}
+		if (ymin <= 0)
+		{
+			double penetrationdepth = a.pos.gety() - a.radius;
+			Vector displacement = Vector.invdot(a.vel, Vector.jhat, penetrationdepth);
+			a.pos.increment(Vector.mpy(a.vel.norm(), Vector.dot(a.vel, displacement) * Environment.tstep));
+
+			Vector rpap = Vector.mpy(Vector.jhat, -a.radius);
+			Vector mtv = Vector.mpy(Vector.jhat, penetrationdepth);
+			applyimpulse(a, rpap, mtv);
+		}
+		else if (ymax >= Environment.dispheight)
+		{
+			double penetrationdepth = a.pos.gety() + a.radius - Environment.dispheight;
+			Vector displacement = Vector.invdot(a.vel, Vector.jhat, penetrationdepth);
+			a.pos.increment(Vector.mpy(a.vel.norm(), -Vector.dot(a.vel, displacement) * Environment.tstep));
+			Vector rpap = Vector.mpy(Vector.jhat, a.radius);
+			Vector mtv = Vector.mpy(Vector.jhat, -penetrationdepth);
+			applyimpulse(a, rpap, mtv);
+//			Vector J = Vector.mpy(Vector.mpy(a.vel, -(1 + a.e)), 1 / (a.invmass + (Vector.dot(rpap, mtv) * Vector.dot(rpap, mtv)) * a.invI));
+//			double j = Vector.dot(J, Vector.jhat);
+//			Vector fdir = Vector.mpy(Vector.ihat, Vector.dot(a.vel, Vector.ihat)).norm();
+//			J = Vector.add(Vector.mpy(Vector.jhat, j), Vector.mpy(fdir, j * a.mu_kinetic));
+//			a.vel.increment(Vector.mpy(J, a.invmass));
+//			a.omega += Vector.dot(rpap, J) * a.invI;
 		}
 	}
 	
 	static void collidewalls(Polygon a)
 	{
 		
+	}
+	
+	static private void applyimpulse(Body a, Vector rp, Vector mtv)
+	{
+		Vector J = Vector.mpy(Vector.mpy(a.vel, -(1 + a.e)), 1 / (a.invmass + (Vector.dot(rp, mtv) * Vector.dot(rp, mtv)) * a.invI));
+		a.vel.increment(Vector.mpy(Vector.mpy(mtv.norm(), Vector.dot(mtv.norm(), J)), a.invmass));
+		a.omega += Vector.dot(rp, J) * a.invI;
 	}
 }
