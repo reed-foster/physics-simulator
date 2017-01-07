@@ -26,8 +26,8 @@ public class Body
 	double I; // moment of inertia
 	double invI; // 1/moment of inertia
 	
-	protected Vector netforce;
-	protected double nettorque;
+	Vector netforce;
+	double nettorque;
 	
 	enum Type {body, circle, polygon};
 	
