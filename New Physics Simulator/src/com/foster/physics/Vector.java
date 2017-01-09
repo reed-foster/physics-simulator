@@ -118,7 +118,7 @@ public class Vector
 	*/
 	double mag()
 	{
-		double magnitude = (double) Math.sqrt(this.magSq());
+		double magnitude = Math.sqrt(this.magSq());
 		return magnitude;
 	}
 	
@@ -175,8 +175,8 @@ public class Vector
 	static double invdotmag(Vector axis, Vector c, double projection)
 	{
 		double denom;
-		denom = axis.magSq() == 1 ? axis.getx() * c.getx() + axis.gety() * c.gety() : (axis.getx() * c.getx() + axis.gety() * c.gety())/axis.mag();
-		return (c.magSq()/denom);
+		denom = axis.magSq() == 1 ? Vector.dot(axis, c) : Vector.dot(axis, c) * (axis.magSq() == 0 ? 0 : 1 / axis.mag());
+		return (c.magSq() * (denom == 0 ? 0 : 1 / denom));
 	}
 	
 	/**Projects a onto b
@@ -197,7 +197,8 @@ public class Vector
 	Vector norm()
 	{
 		Vector a = this.get();
-		return Vector.mpy(a, (1 / a.mag()));
+		double mag = a.mag();
+		return Vector.mpy(a, (mag == 0 ? 0 : 1 / mag));
 	}
 	
 	/**Finds a perpendicular vector

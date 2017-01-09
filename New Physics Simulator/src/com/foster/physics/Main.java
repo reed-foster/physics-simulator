@@ -26,7 +26,13 @@ class Main extends JPanel
 	public void update(Environment e)
 	{
 		e.integrateAll();
+		Double x = environment.circles.get(0).pos.getx();
+		if (x.isNaN())
+			System.out.println("integration failed");
 		e.collideAll();
+		x = environment.circles.get(0).pos.getx();
+		if (x.isNaN())
+			System.out.println("collisions failed");
 	}
 	
 	public void loop(Environment e)
@@ -37,13 +43,13 @@ class Main extends JPanel
 	
 	public void addcircles()
 	{
-		for(int i = 0; i <= 150; i++)
+		for(int i = 0; i <= 100; i++)
 		{
 			double density = 5;//(Math.random() + 2) * 5;
 			Vector position = new Vector((Math.random() + 0.01) * (Environment.dispwidth - 20), (Math.random() + 0.01) * (Environment.dispheight - 20));
-			double radius = (Math.random() + 0.2) * 20;
+			double radius = (Math.random() + 1) * 10;
 			double restitution = (Math.random() + 9) / 10;
-			Circle newcirc = new Circle(density * Math.PI * radius * radius, position, 0, 0, restitution, radius*2);
+			Circle newcirc = new Circle(density * Math.PI * radius * radius, position, 0, 0.1, restitution, radius);
 			environment.newEntity(newcirc);
 			Vector rand_vel = new Vector((Math.random() - 0.5) * 50, (Math.random() - 0.5) * 50);
 			newcirc.vel = rand_vel.get();
@@ -90,7 +96,7 @@ class Main extends JPanel
 		while (true)
 		{
 			main.loop(environment);
-			Thread.sleep(0, 1);
+			Thread.sleep(10, 0);
 			Double x = environment.circles.get(0).pos.getx();
 			if (x.isNaN())
 				break;

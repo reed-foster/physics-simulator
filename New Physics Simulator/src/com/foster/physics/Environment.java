@@ -11,7 +11,7 @@ import java.awt.RenderingHints;
  */
 public class Environment
 {
-	static final double tstep = 0.01;
+	static final double tstep = 0.05;
 	static final int dispwidth = 800;
 	static final int dispheight = 600;
 	List<Polygon> polygons = new ArrayList<Polygon>();
@@ -83,10 +83,10 @@ public class Environment
 			}
 		}
 		
-		for (int i = 0; i < circlesize; i++)
+		for (int i = 0; i < circlesize - 1; i++)
 		{
 			Circle a = circles.get(i);
-			for (int j = 0; j < circlesize; j++)
+			for (int j = i + 1; j < circlesize; j++)
 			{
 				Circle b = circles.get(j);
 				Collision.collide(a, b);
@@ -150,10 +150,10 @@ public class Environment
 	{
 		int diam = (int) (2 * i.radius);
 		g2d.drawOval((int) (i.pos.getx() - i.radius), (int) (dispheight - i.pos.gety() - i.radius), diam, diam);
-		//int x1 = (int) i.pos.getx();
-		//int y1 = dispheight - (int) i.pos.gety();
-		//int x2 = x1 + (int) (i.radius * Math.cos(i.theta));
-		//int y2 = y1 + (int) (i.radius * Math.sin(i.theta));
-		//g2d.drawLine(x1, y1, x2, y2);
+		int x1 = (int) i.pos.getx();
+		int y1 = dispheight - (int) i.pos.gety();
+		int x2 = x1 + (int) (i.radius * Math.cos(i.theta));
+		int y2 = y1 + (int) (i.radius * Math.sin(i.theta));
+		g2d.drawLine(x1, y1, x2, y2);
 	}
 }

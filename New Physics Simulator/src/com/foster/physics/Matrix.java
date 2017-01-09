@@ -5,6 +5,8 @@ package com.foster.physics;
  */
 class Matrix
 {
+	public static final Matrix I2 = new Matrix(1, 0, 0, 1);
+	
 	private double[][] a;
 	
 	/**Constructor for 2x2 Matrices
@@ -30,6 +32,26 @@ class Matrix
 	double get(int i, int j)
 	{
 		return a[i][j];
+	}
+	
+	/**Multiplies two matrices
+	 * @param a = 1st matrix
+	 * @param b = 2nd matrix
+	 * @return new product
+	 */
+	static Matrix mpy(Matrix a, Matrix b)
+	{
+		double a11 = a.get(0, 0);
+		double a12 = a.get(0, 1);
+		double a21 = a.get(1, 0);
+		double a22 = a.get(1, 1);
+		
+		double b11 = b.get(0, 0);
+		double b12 = b.get(0, 1);
+		double b21 = b.get(1, 0);
+		double b22 = b.get(1, 1);
+		
+		return new Matrix(a11 * b11 + a12 * b21, a11 * b12 + a12 * b22, a21 * b11 + a22 * b21, a21 * b12 + a22 * b22);
 	}
 	
 	/**Prints a formatted matrix with 5 digits for each element and up to 3 decimal places

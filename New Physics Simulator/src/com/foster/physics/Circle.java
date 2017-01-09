@@ -65,8 +65,7 @@ public class Circle extends Body
 	void integrate(double tstep)
 	{
 		super.integrate(tstep);
-		AABB aabb = getAABB(this.pos, this.radius);
-		this.bounds = aabb.get();
+		this.bounds = getAABB(this.pos, this.radius);
 	}
 	
 	/**Gets the minimum and maximum values of the projection of a Circle onto a Vector axis
