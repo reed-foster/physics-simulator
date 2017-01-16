@@ -44,7 +44,6 @@ public class Collision
 		
 		//move objects so there is zero penetration
 		Vector vab = Vector.sub(b.vel, a.vel);
-		
 		do
 		{
 			vab = Vector.sub(b.vel, a.vel);
@@ -53,6 +52,7 @@ public class Collision
 			b.pos.decrement(Vector.mpy(b.vel.norm(), Vector.dot(b.vel, displacement) * Environment.tstep * 1.2));
 		}
 		while (interpenetrating(a, b));
+		
 		
 		if (vab.magSq() < 0.001 && vab.magSq() > -0.001) //Circles are stationary but touching, apply normal force
 		{
