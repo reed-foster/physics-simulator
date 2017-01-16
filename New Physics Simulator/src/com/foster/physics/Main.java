@@ -43,13 +43,13 @@ class Main extends JPanel
 	
 	public void addcircles()
 	{
-		for(int i = 0; i <= 100; i++)
+		for(int i = 0; i <= 50; i++)
 		{
 			double density = 5;//(Math.random() + 2) * 5;
 			Vector position = new Vector((Math.random() + 0.01) * (Environment.dispwidth - 20), (Math.random() + 0.01) * (Environment.dispheight - 20));
 			double radius = (Math.random() + 1) * 10;
 			double restitution = (Math.random() + 9) / 10;
-			Circle newcirc = new Circle(density * Math.PI * radius * radius, position, 0, 0.1, restitution, radius);
+			Circle newcirc = new Circle(density * Math.PI * radius * radius, position, 0, 0.5, restitution, radius);
 			environment.newEntity(newcirc);
 			Vector rand_vel = new Vector((Math.random() - 0.5) * 50, (Math.random() - 0.5) * 50);
 			newcirc.vel = rand_vel.get();
