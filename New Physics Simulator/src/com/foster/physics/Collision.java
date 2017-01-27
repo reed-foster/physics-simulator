@@ -43,11 +43,11 @@ public class Collision
 		mtv.scale(mtvlen);
 		
 		//move objects so there is zero penetration
-		Vector vab = Vector.sub(b.vel, a.vel);
+		Vector vab = Vector.sub(a.vel, b.vel);
 		do
 		{
-			vab = Vector.sub(b.vel, a.vel);
-			Vector displacement = Vector.invdot(vab.norm(), mtv_norm, mtvlen);
+			vab = Vector.sub(a.vel, b.vel);
+			Vector displacement = Vector.invdot(vab.norm(), mtv_norm, -mtvlen);
 			a.pos.increment(Vector.mpy(a.vel.norm(), Vector.dot(a.vel, displacement) * Environment.tstep * 1.2));
 			b.pos.decrement(Vector.mpy(b.vel.norm(), Vector.dot(b.vel, displacement) * Environment.tstep * 1.2));
 		}
@@ -63,11 +63,12 @@ public class Collision
 		{
 			Vector rpap = Vector.mpy(mtv_norm, a.radius).perp();
 			Vector rpbp = Vector.mpy(mtv_norm, b.radius).perp();
-			Vector J = Vector.mpy(Vector.mpy(Vector.sub(a.vel, b.vel), -(1 + Math.min(a.e, b.e))),
-					1 / (a.invmass + b.invmass + (Vector.dot(rpap, mtv) * Vector.dot(rpap, mtv)) * a.invI + (Vector.dot(rpbp, mtv) * Vector.dot(rpbp, mtv)) * b.invI));
-			double j = Vector.dot(J, mtv_norm);
-			Vector fdir = Vector.mpy(mtv_norm.perp(), Vector.dot(vab, mtv_norm.perp())).norm();
-			J = Vector.add(Vector.mpy(mtv_norm, j), Vector.mpy(fdir, j * Math.max(a.mu_kinetic, b.mu_kinetic)));
+			/*Vector J = Vector.mpy(Vector.mpy(Vector.sub(a.vel, b.vel), -(1 + Math.min(a.e, b.e))),
+					1 / (a.invmass + b.invmass + (Vector.dot(rpap, mtv) * Vector.dot(rpap, mtv)) * a.invI + (Vector.dot(rpbp, mtv) * Vector.dot(rpbp, mtv)) * b.invI));*/
+			double j = -(1 + Math.min(a.e, b.e)) * Vector.dot(vab, mtv_norm) / (Vector.dot(mtv_norm, mtv_norm) * (a.invmass + b.invmass) + Vector.dot(rpap, mtv_norm) * Vector.dot(rpap, mtv_norm) * a.invI + Vector.dot(rpbp, mtv_norm) * Vector.dot(rpbp, mtv_norm) * b.invI);
+			Vector J = Vector.mpy(mtv_norm, j);
+			//Vector fdir = Vector.mpy(mtv_norm.perp(), Vector.dot(vab, mtv_norm.perp())).norm();
+			//J = Vector.add(Vector.mpy(mtv_norm, j), Vector.mpy(fdir, j * Math.max(a.mu_kinetic, b.mu_kinetic)));
 			a.vel.increment(Vector.mpy(J, a.invmass));
 			b.vel.decrement(Vector.mpy(J, b.invmass));
 			a.omega += Vector.dot(rpap, J) * a.invI;
@@ -208,73 +209,15 @@ public class Collision
 	
 	static void collidewalls(Circle a)
 	{
-		if (a.bounds.min.getx() <= 0)
-		{
-			double penetrationdepth = a.bounds.min.getx();
-			while (penetrationdepth >= 0)
-			{
-				Vector displacement = Vector.invdot(a.vel, Vector.ihat, penetrationdepth);
-				a.pos.decrement(displacement);//Vector.mpy(a.vel.norm(), Vector.dot(a.vel, displacement) * Environment.tstep * 1.2));
-				penetrationdepth = a.bounds.min.getx();
-			}
-
-			Vector rpap = Vector.mpy(Vector.jhat, -a.radius);
-			Vector mtv = Vector.mpy(Vector.ihat, penetrationdepth);
-			applyimpulse(a, rpap, mtv);
-		}
-		else if (a.bounds.max.getx() >= Environment.dispwidth)
-		{
-			double penetrationdepth = a.bounds.max.getx() - Environment.dispwidth;
-			while (penetrationdepth <= 0)
-			{
-				Vector displacement = Vector.invdot(a.vel, Vector.ihat, penetrationdepth);
-				a.pos.decrement(displacement);
-				penetrationdepth = a.bounds.max.getx() - Environment.dispwidth;
-			}
+		if (a.bounds.min.getx() <= 0 || a.bounds.max.getx() >= Environment.dispwidth)
+			a.vel = new Vector(-a.vel.getx(), a.vel.gety());
+		if (a.bounds.min.gety() <= 0 || a.bounds.max.gety() >= Environment.dispheight)
+			a.vel = new Vector(a.vel.getx(), -a.vel.gety());
 			
-			Vector rpap = Vector.mpy(Vector.jhat, a.radius);
-			Vector mtv = Vector.mpy(Vector.ihat, -penetrationdepth);
-			applyimpulse(a, rpap, mtv);
-		}
-		if (a.bounds.min.gety() <= 0)
-		{
-			double penetrationdepth = a.bounds.min.gety();
-			while (penetrationdepth >= 0)
-			{
-				Vector displacement = Vector.invdot(a.vel, Vector.jhat, penetrationdepth);
-				a.pos.decrement(displacement);
-				penetrationdepth = a.bounds.min.gety();
-			}
-
-			Vector rpap = Vector.mpy(Vector.ihat, -a.radius);
-			Vector mtv = Vector.mpy(Vector.jhat, penetrationdepth);
-			applyimpulse(a, rpap, mtv);
-		}
-		else if (a.bounds.max.gety() >= Environment.dispheight)
-		{
-			double penetrationdepth = a.pos.gety() + a.radius - Environment.dispheight;
-			while (penetrationdepth <= 0)
-			{
-				Vector displacement = Vector.invdot(a.vel, Vector.jhat, penetrationdepth);
-				a.pos.decrement(displacement);
-				penetrationdepth = a.bounds.max.gety() - Environment.dispheight;
-			}
-			
-			Vector rpap = Vector.mpy(Vector.ihat, a.radius);
-			Vector mtv = Vector.mpy(Vector.jhat, -penetrationdepth);
-			applyimpulse(a, rpap, mtv);
-		}
 	}
 	
 	static void collidewalls(Polygon a)
 	{
 		
-	}
-	
-	static private void applyimpulse(Body a, Vector rp, Vector mtv)
-	{
-		Vector J = Vector.mpy(Vector.mpy(a.vel, -(1 + a.e)), 1 / (a.invmass + (Vector.dot(rp, mtv) * Vector.dot(rp, mtv)) * a.invI));
-		a.vel.increment(Vector.mpy(Vector.mpy(mtv.norm(), Vector.dot(mtv.norm(), J)), a.invmass));
-		a.omega += Vector.dot(rp, J) * a.invI;
 	}
 }
