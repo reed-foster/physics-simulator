@@ -11,7 +11,7 @@ import java.awt.RenderingHints;
  */
 public class Environment
 {
-	static final double tstep = 0.05;
+	static final double tstep = 0.005;
 	static final int dispwidth = 800;
 	static final int dispheight = 600;
 	List<Polygon> polygons = new ArrayList<Polygon>();

@@ -96,7 +96,7 @@ class Main extends JPanel
 		while (true)
 		{
 			main.loop(environment);
-			Thread.sleep(10, 0);
+			Thread.sleep(1, 0);
 			Double x = environment.circles.get(0).pos.getx();
 			if (x.isNaN())
 				break;
